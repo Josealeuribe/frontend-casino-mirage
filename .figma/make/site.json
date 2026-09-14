@@ -1,0 +1,10 @@
+{
+  "description": "This web application offers a user-friendly landing page for casino management, providing admins with a comprehensive overview of key modules after login.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
