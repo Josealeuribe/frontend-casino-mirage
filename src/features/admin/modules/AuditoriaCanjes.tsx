@@ -1,9 +1,9 @@
 const CANJES = [
-  { id: "CJ-001", cliente: "María González", doc: "23.456.789", bono: "$10.000",  cajero: "Sandra Ruiz", sede: "Av. 5",         fecha: "13 sept 2026", hora: "10:42" },
-  { id: "CJ-002", cliente: "Carlos Pérez",   doc: "34.567.890", bono: "$20.000",  cajero: "Pedro Gómez", sede: "Av. 0",         fecha: "12 sept 2026", hora: "15:17" },
-  { id: "CJ-003", cliente: "Luis Martínez",  doc: "56.789.012", bono: "$100.000", cajero: "Sandra Ruiz", sede: "Av. 5",         fecha: "11 sept 2026", hora: "18:03" },
-  { id: "CJ-004", cliente: "Sandra López",   doc: "89.012.345", bono: "$10.000",  cajero: "Ana Vera",    sede: "Ventura Plaza", fecha: "10 sept 2026", hora: "12:55" },
-  { id: "CJ-005", cliente: "Jorge Sánchez",  doc: "78.901.234", bono: "$500.000", cajero: "Pedro Gómez", sede: "Av. 0",         fecha: "09 sept 2026", hora: "20:14" },
+  { id: "CJ-001", cliente: "María González", doc: "23.456.789", bono: "$10.000",  cajero: "Sandra Ruiz", sede: "Mirage No. 2", fecha: "13 sept 2026", hora: "10:42" },
+  { id: "CJ-002", cliente: "Carlos Pérez",   doc: "34.567.890", bono: "$20.000",  cajero: "Pedro Gómez", sede: "Mirage 3",     fecha: "12 sept 2026", hora: "15:17" },
+  { id: "CJ-003", cliente: "Luis Martínez",  doc: "56.789.012", bono: "$50.000",  cajero: "Sandra Ruiz", sede: "Mirage No. 2", fecha: "11 sept 2026", hora: "18:03" },
+  { id: "CJ-004", cliente: "Sandra López",   doc: "89.012.345", bono: "$10.000",  cajero: "Ana Vera",    sede: "Mirage 3",     fecha: "10 sept 2026", hora: "12:55" },
+  { id: "CJ-005", cliente: "Jorge Sánchez",  doc: "78.901.234", bono: "$20.000",  cajero: "Pedro Gómez", sede: "Mirage 3",     fecha: "09 sept 2026", hora: "20:14" },
 ];
 
 const card: React.CSSProperties = {

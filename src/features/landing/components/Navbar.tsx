@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useNavigate } from "react-router";
+import { scrollToSection } from "@/shared/utils/scroll";
 import logoMirage from "@/imports/logo-mirage.png";
 
 const NAV_LINKS = [
@@ -8,13 +9,9 @@ const NAV_LINKS = [
   { label: "Gira y Gana",   target: "gira-y-gana" },
   { label: "Premios",       target: "premios" },
   { label: "Cómo Funciona", target: "como-funciona" },
+  { label: "Sedes",         target: "sedes" },
   { label: "FAQ",           target: "faq" },
 ];
-
-function scrollTo(id: string) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-}
 
 export default function Navbar() {
   const { user, logout, openLogin } = useAuth();
@@ -33,14 +30,14 @@ export default function Navbar() {
       {/* Logo */}
       <button
         className="flex items-center gap-3"
-        onClick={() => scrollTo("inicio")}
+        onClick={() => scrollToSection("inicio")}
       >
-        <img src={logoMirage} alt="Mirage Casino" className="h-10 w-auto object-contain" />
+        <img src={logoMirage} alt="Centro Club Mirage" className="h-10 w-auto object-contain" />
         <span
           className="hidden sm:block font-bold text-base tracking-widest uppercase"
           style={{ color: "#D4A827", letterSpacing: "0.18em", fontFamily: "Roboto" }}
         >
-          Mirage <span style={{ color: "#00C4D8" }}>Casino</span>
+          Centro Club <span style={{ color: "#00C4D8" }}>Mirage</span>
         </span>
       </button>
 
@@ -49,7 +46,7 @@ export default function Navbar() {
         {NAV_LINKS.map((link) => (
           <li key={link.label}>
             <button
-              onClick={() => scrollTo(link.target)}
+              onClick={() => scrollToSection(link.target)}
               className="text-sm font-medium transition-colors duration-200"
               style={{ color: "rgba(237,232,252,0.6)" }}
               onMouseEnter={(e) => { e.currentTarget.style.color = "#EDE8FC"; }}
@@ -130,7 +127,7 @@ export default function Navbar() {
               key={link.label}
               className="block w-full text-left px-6 py-3 text-sm transition-colors"
               style={{ color: "rgba(237,232,252,0.6)" }}
-              onClick={() => { scrollTo(link.target); setMenuOpen(false); }}
+              onClick={() => { scrollToSection(link.target); setMenuOpen(false); }}
               onMouseEnter={(e) => { e.currentTarget.style.color = "#EDE8FC"; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(237,232,252,0.6)"; }}
             >

@@ -37,7 +37,7 @@ export default function MiCuenta() {
           <div>
             <p className="text-lg font-bold text-white">{user?.name ?? "Admin"}</p>
             <p className="text-sm mt-0.5" style={{ color: "rgba(237,232,252,0.4)" }}>
-              Administrador · Mirage Casino
+              Administrador · Centro Club Mirage
             </p>
             <span
               className="text-xs px-2.5 py-1 rounded-full inline-block mt-2"

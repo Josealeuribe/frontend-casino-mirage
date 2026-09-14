@@ -6,13 +6,13 @@ const STEPS = [
   },
   {
     num: "02",
-    title: "Descubre tu Premio",
-    desc: "La ruleta se detiene y revela el beneficio exclusivo que tenemos preparado para ti.",
+    title: "Descubre tu Bono",
+    desc: "La ruleta se detiene y revela cuál de los tres bonos te corresponde: $10.000, $20.000 o $50.000.",
   },
   {
     num: "03",
-    title: "Regístrate y Reclámalo",
-    desc: "Completa tus datos en minutos. Tu premio queda reservado mientras lo reclamas.",
+    title: "Redímelo en el casino",
+    desc: "Completa tu registro y acércate a cualquiera de nuestras dos sedes en Arauca. Tu bono queda reservado mientras lo reclamas.",
   },
 ];
 

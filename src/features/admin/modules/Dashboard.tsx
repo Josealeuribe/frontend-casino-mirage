@@ -104,9 +104,8 @@ export default function Dashboard() {
           </thead>
           <tbody>
             {[
-              { sede: "Ventura Plaza", giros: 51, canjes: 21, tasa: "41%", valor: "$540K" },
-              { sede: "Av. 5",         giros: 47, canjes: 14, tasa: "30%", valor: "$380K" },
-              { sede: "Av. 0",         giros: 44, canjes: 10, tasa: "23%", valor: "$280K" },
+              { sede: "Mirage 3",     giros: 78, canjes: 26, tasa: "33%", valor: "$680K" },
+              { sede: "Mirage No. 2", giros: 68, canjes: 19, tasa: "28%", valor: "$520K" },
             ].map((row, i, arr) => (
               <tr key={i} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
                 <td className="py-3 pr-5" style={{ color: "rgba(237,232,252,0.7)" }}>{row.sede}</td>

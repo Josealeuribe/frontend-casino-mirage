@@ -1,9 +1,9 @@
 const PERSONAL = [
-  { id: "P01", nombre: "Sandra Ruiz",    rol: "Cajera",       sede: "Av. 5",         canjes: 18, turno: "Mañana",   estado: "Activo" },
-  { id: "P02", nombre: "Pedro Gómez",    rol: "Cajero",       sede: "Av. 0",         canjes: 15, turno: "Tarde",    estado: "Activo" },
-  { id: "P03", nombre: "Ana Vera",       rol: "Supervisora",  sede: "Ventura Plaza", canjes: 12, turno: "Completo", estado: "Activo" },
-  { id: "P04", nombre: "Miguel Torres",  rol: "Cajero",       sede: "Ventura Plaza", canjes: 8,  turno: "Noche",    estado: "Activo" },
-  { id: "P05", nombre: "Laura Jiménez",  rol: "Cajera",       sede: "Av. 5",         canjes: 5,  turno: "Mañana",   estado: "Inactivo" },
+  { id: "P01", nombre: "Sandra Ruiz",    rol: "Cajera",       sede: "Mirage No. 2", canjes: 18, turno: "Mañana",   estado: "Activo" },
+  { id: "P02", nombre: "Pedro Gómez",    rol: "Cajero",       sede: "Mirage 3",     canjes: 15, turno: "Tarde",    estado: "Activo" },
+  { id: "P03", nombre: "Ana Vera",       rol: "Supervisora",  sede: "Mirage 3",     canjes: 12, turno: "Completo", estado: "Activo" },
+  { id: "P04", nombre: "Miguel Torres",  rol: "Cajero",       sede: "Mirage 3",     canjes: 8,  turno: "Noche",    estado: "Activo" },
+  { id: "P05", nombre: "Laura Jiménez",  rol: "Cajera",       sede: "Mirage No. 2", canjes: 5,  turno: "Mañana",   estado: "Inactivo" },
 ];
 
 const AVATAR_COLORS = ["#6B32D6","#1A5ED8","#00C4D8","#10B981","#D4A827"];

@@ -62,7 +62,7 @@ export default function LoginModal() {
         </button>
 
         <div className="flex flex-col items-center mb-8">
-          <img src={logoMirage} alt="Mirage Casino" className="h-16 w-auto mb-4 object-contain" />
+          <img src={logoMirage} alt="Centro Club Mirage" className="h-16 w-auto mb-4 object-contain" />
           <h2 className="text-xl font-bold text-white">Acceso Admin</h2>
           <p className="text-xs mt-1" style={{ color: "rgba(237,232,252,0.4)" }}>
             Ingresa tus credenciales para continuar

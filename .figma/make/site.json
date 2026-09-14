@@ -1,5 +1,6 @@
 {
-  "description": "This web application offers a user-friendly landing page for casino management, providing admins with a comprehensive overview of key modules after login.",
+  "title": "Centro Club Mirage · Gira y Gana",
+  "description": "Gira la ruleta de Centro Club Mirage y gana un bono de $10.000, $20.000 o $50.000, redimible únicamente en nuestros casinos físicos de Arauca.",
   "robots": {
     "index": false
   },

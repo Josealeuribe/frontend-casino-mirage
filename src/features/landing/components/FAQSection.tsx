@@ -1,25 +1,32 @@
 import { useState } from "react";
+import { SEDES } from "@/shared/data/sedes";
+
+const NOMBRES_SEDES = SEDES.map((sede) => sede.nombre).join(" o ");
 
 const FAQS = [
   {
     q: "¿Cómo puedo participar en Gira y Gana?",
-    a: "Simplemente regístrate en Mirage Casino, accede a la sección 'Gira y Gana' y usa tus 3 intentos para girar la ruleta. Cada giro puede revelarte un premio exclusivo.",
+    a: "Gira la ruleta aquí mismo, descubre tu bono y completa tu registro para reclamarlo. Tienes 3 intentos.",
   },
   {
     q: "¿Cuántos intentos tengo para girar la ruleta?",
-    a: "Cada usuario registrado tiene 3 intentos para girar la ruleta. Una vez usados todos, no podrás girar nuevamente hasta la próxima promoción.",
+    a: "Cada usuario tiene 3 intentos para girar la ruleta. Una vez usados todos, no podrás girar nuevamente hasta la próxima promoción.",
   },
   {
-    q: "¿Hasta cuándo puedo canjear mi premio?",
-    a: "Tienes hasta el 30 de septiembre de 2026 para canjear tu bono. Pasada esa fecha, los premios no canjeados quedan sin efecto.",
+    q: "¿Qué bonos puedo ganar?",
+    a: "La promoción reparte tres bonos: $10.000, $20.000 y $50.000. Todos son redimibles únicamente en nuestros casinos físicos de Arauca.",
+  },
+  {
+    q: "¿Hasta cuándo puedo canjear mi bono?",
+    a: "Tienes hasta el 30 de septiembre de 2026 para canjear tu bono. Pasada esa fecha, los bonos no canjeados quedan sin efecto.",
   },
   {
     q: "¿Dónde puedo reclamar mi bono?",
-    a: "Puedes reclamar tu bono en cualquiera de nuestras tres sedes: Ventura Plaza, Av. 5 o Av. 0. Presenta tu código de bono en caja.",
+    a: `El bono se redime presencialmente en ${NOMBRES_SEDES}, sobre la Cra. 22 en Arauca. Presenta tu documento y tu código de bono en caja.`,
   },
   {
-    q: "¿Qué pasa si giro y no gano nada?",
-    a: "Todos los giros tienen premio. Existen más de 98 premios en juego, desde $10.000 hasta $1,2M. ¡La ruleta siempre tiene algo reservado para ti!",
+    q: "¿El bono se puede cambiar por dinero en efectivo?",
+    a: "No. El bono es un beneficio de juego redimible únicamente dentro del casino y no es convertible en efectivo ni transferible a otra persona.",
   },
 ];
 

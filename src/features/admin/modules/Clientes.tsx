@@ -1,14 +1,14 @@
 import { useState } from "react";
 
 const ALL_CLIENTS = [
-  { id: "001", name: "David Ladino",   doc: "12.345.678", sede: "Ventura Plaza", giros: 3, bono: "$50.000",    estado: "Pendiente", fecha: "13 sept 2026" },
-  { id: "002", name: "María González", doc: "23.456.789", sede: "Av. 5",         giros: 2, bono: "$10.000",    estado: "Canjeado",  fecha: "13 sept 2026" },
-  { id: "003", name: "Carlos Pérez",   doc: "34.567.890", sede: "Av. 0",         giros: 3, bono: "$20.000",    estado: "Canjeado",  fecha: "12 sept 2026" },
-  { id: "004", name: "Ana Rodríguez",  doc: "45.678.901", sede: "Ventura Plaza", giros: 1, bono: "$10.000",    estado: "Pendiente", fecha: "12 sept 2026" },
-  { id: "005", name: "Luis Martínez",  doc: "56.789.012", sede: "Av. 5",         giros: 3, bono: "$100.000",   estado: "Canjeado",  fecha: "11 sept 2026" },
-  { id: "006", name: "Paola Torres",   doc: "67.890.123", sede: "Av. 0",         giros: 2, bono: "$20.000",    estado: "Pendiente", fecha: "11 sept 2026" },
-  { id: "007", name: "Jorge Sánchez",  doc: "78.901.234", sede: "Ventura Plaza", giros: 3, bono: "$500.000",   estado: "Pendiente", fecha: "10 sept 2026" },
-  { id: "008", name: "Sandra López",   doc: "89.012.345", sede: "Av. 5",         giros: 3, bono: "$10.000",    estado: "Canjeado",  fecha: "10 sept 2026" },
+  { id: "001", name: "David Ladino",   doc: "12.345.678", sede: "Mirage 3",     giros: 3, bono: "$50.000",    estado: "Pendiente", fecha: "13 sept 2026" },
+  { id: "002", name: "María González", doc: "23.456.789", sede: "Mirage No. 2", giros: 2, bono: "$10.000",    estado: "Canjeado",  fecha: "13 sept 2026" },
+  { id: "003", name: "Carlos Pérez",   doc: "34.567.890", sede: "Mirage 3",     giros: 3, bono: "$20.000",    estado: "Canjeado",  fecha: "12 sept 2026" },
+  { id: "004", name: "Ana Rodríguez",  doc: "45.678.901", sede: "Mirage 3",     giros: 1, bono: "$10.000",    estado: "Pendiente", fecha: "12 sept 2026" },
+  { id: "005", name: "Luis Martínez",  doc: "56.789.012", sede: "Mirage No. 2", giros: 3, bono: "$50.000",    estado: "Canjeado",  fecha: "11 sept 2026" },
+  { id: "006", name: "Paola Torres",   doc: "67.890.123", sede: "Mirage 3",     giros: 2, bono: "$20.000",    estado: "Pendiente", fecha: "11 sept 2026" },
+  { id: "007", name: "Jorge Sánchez",  doc: "78.901.234", sede: "Mirage 3",     giros: 3, bono: "$20.000",    estado: "Pendiente", fecha: "10 sept 2026" },
+  { id: "008", name: "Sandra López",   doc: "89.012.345", sede: "Mirage No. 2", giros: 3, bono: "$10.000",    estado: "Canjeado",  fecha: "10 sept 2026" },
 ];
 
 const card: React.CSSProperties = {

@@ -118,7 +118,7 @@ export default function Sidebar({ active, onSelect }: SidebarProps) {
         className="flex items-center justify-center py-5 px-4"
         style={{ borderBottom: "1px solid rgba(107,50,214,0.1)" }}
       >
-        <img src={logoMirage} alt="Mirage Casino" className="h-11 w-auto object-contain" />
+        <img src={logoMirage} alt="Centro Club Mirage" className="h-11 w-auto object-contain" />
       </div>
 
       {/* Module nav */}

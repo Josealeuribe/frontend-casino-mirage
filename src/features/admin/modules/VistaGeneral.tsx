@@ -53,18 +53,14 @@ const STATS = [
 ];
 
 const CASINOS = [
-  { name: "Mirage Casino Ventura Plaza", count: 51, pct: 36 },
-  { name: "Mirage Casino Av. 5",         count: 47, pct: 33 },
-  { name: "Mirage Casino Av. 0",         count: 44, pct: 31 },
+  { name: "Centro Club Mirage 3",      count: 78, pct: 53 },
+  { name: "Centro Club Mirage No. 2",  count: 68, pct: 47 },
 ];
 
 const BONUS_TIERS = [
-  { label: "Bono de $10.000",    count: 36, color: "#8B5CE8" },
-  { label: "Bono de $20.000",    count: 28, color: "#3A7EF0" },
-  { label: "Bono de $50.000",    count: 18, color: "#00C4D8" },
-  { label: "Bono de $100.000",   count: 10, color: "#D4A827" },
-  { label: "Bono de $500.000",   count: 4,  color: "#F97316" },
-  { label: "Gran Premio $1,2M",  count: 2,  color: "#10B981" },
+  { label: "Bono de $10.000", count: 62, color: "#8B5CE8" },
+  { label: "Bono de $20.000", count: 51, color: "#3A7EF0" },
+  { label: "Bono de $50.000", count: 31, color: "#D4A827" },
 ];
 
 const RECENT = [
@@ -72,7 +68,7 @@ const RECENT = [
   { name: "María González",  date: "13 sept 2026", bono: "$10.000" },
   { name: "Carlos Pérez",    date: "12 sept 2026", bono: "$20.000" },
   { name: "Ana Rodríguez",   date: "12 sept 2026", bono: "$10.000" },
-  { name: "Luis Martínez",   date: "11 sept 2026", bono: "$100.000" },
+  { name: "Luis Martínez",   date: "11 sept 2026", bono: "$50.000" },
 ];
 
 const daysLeft = Math.max(0, Math.ceil((new Date("2026-09-30").getTime() - Date.now()) / 86400000));

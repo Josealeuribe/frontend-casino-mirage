@@ -17,14 +17,6 @@ function PrizeIcon({ type }: { type: string }) {
         <text x="18" y="22" textAnchor="middle" fontSize="10" fontWeight="700" fill="currentColor">$</text>
       </svg>
     );
-  if (type === "card")
-    return (
-      <svg {...s} viewBox="0 0 36 36" fill="none">
-        <rect x="4" y="9" width="28" height="18" rx="3" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M4 15h28" stroke="currentColor" strokeWidth="1.8" />
-        <rect x="8" y="20" width="8" height="3" rx="1" fill="currentColor" opacity="0.5" />
-      </svg>
-    );
   if (type === "gift")
     return (
       <svg {...s} viewBox="0 0 36 36" fill="none">
@@ -35,37 +27,13 @@ function PrizeIcon({ type }: { type: string }) {
         <path d="M18 10c0 0 3-5 6-3s1 6-6 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
       </svg>
     );
-  if (type === "layers")
-    return (
-      <svg {...s} viewBox="0 0 36 36" fill="none">
-        <path d="M18 4L32 12 18 20 4 12 18 4z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-        <path d="M4 20l14 8 14-8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-        <path d="M4 26l14 8 14-8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    );
-  if (type === "ticket")
-    return (
-      <svg {...s} viewBox="0 0 36 36" fill="none">
-        <path d="M4 13a4 4 0 000 10h28a4 4 0 000-10H4z" stroke="currentColor" strokeWidth="1.8" />
-        <circle cx="13" cy="18" r="3" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M20 15h8M20 18h6M20 21h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    );
-  if (type === "trophy")
-    return (
-      <svg {...s} viewBox="0 0 36 36" fill="none">
-        <path d="M12 6h12v12a6 6 0 01-12 0V6z" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M12 10H7a4 4 0 004 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-        <path d="M24 10h5a4 4 0 01-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-        <path d="M18 24v4M14 28h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    );
-  // party
+  // trophy
   return (
     <svg {...s} viewBox="0 0 36 36" fill="none">
-      <path d="M6 30L16 10l10 14-6 1 3 5H6z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-      <circle cx="28" cy="8" r="2" fill="currentColor" opacity="0.6" />
-      <path d="M24 4l1 3M29 3l-1 3M32 7l-3 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M12 6h12v12a6 6 0 01-12 0V6z" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M12 10H7a4 4 0 004 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M24 10h5a4 4 0 01-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M18 24v4M14 28h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }

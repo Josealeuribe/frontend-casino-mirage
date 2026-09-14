@@ -225,7 +225,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-base mb-8 max-w-lg leading-relaxed" style={{ color: "rgba(237,232,252,0.55)" }}>
-            Presiona el botón, gira la ruleta y descubre el beneficio exclusivo que tenemos para ti.
+            Presiona el botón, gira la ruleta y descubre tu bono. Redimible únicamente en nuestros casinos físicos de Arauca.
           </p>
 
           {/* Spin button / state */}
