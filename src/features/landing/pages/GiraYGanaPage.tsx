@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { RotateCw } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import PrizesSection from "../components/PrizesSection";
 import HowItWorksSection from "../components/HowItWorksSection";
@@ -186,11 +187,7 @@ export default function GiraYGanaPage() {
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 8px 36px rgba(107,50,214,0.6)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 6px 28px rgba(107,50,214,0.4)"; }}
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="7" stroke="white" strokeWidth="1.4" />
-                  <path d="M5 8a3 3 0 016 0" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
-                  <path d="M11 6l0 2-2 0" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <RotateCw size={16} color="white" strokeWidth={1.6} />
                 Gira y Gana
               </Link>
 
@@ -281,11 +278,7 @@ export default function GiraYGanaPage() {
           onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 8px 36px rgba(107,50,214,0.6)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 6px 28px rgba(107,50,214,0.4)"; }}
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="7" stroke="white" strokeWidth="1.4" />
-            <path d="M5 8a3 3 0 016 0" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
-            <path d="M11 6l0 2-2 0" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <RotateCw size={16} color="white" strokeWidth={1.6} />
           Gira y Gana
         </Link>
       </div>

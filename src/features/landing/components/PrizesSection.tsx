@@ -1,13 +1,12 @@
+import { Coins, Gift, Trophy } from "lucide-react";
 import { PRIZES } from "../data/prizes";
 
 function PrizeIcon({ type, size = 28 }: { type: string; size?: number }) {
-  const props = { width: size, height: size, viewBox: "0 0 28 28", fill: "none" as const };
-  if (type === "coin")
-    return <svg {...props}><circle cx="14" cy="14" r="11" stroke="currentColor" strokeWidth="1.6"/><circle cx="14" cy="14" r="6" stroke="currentColor" strokeWidth="1.6"/><text x="14" y="18" textAnchor="middle" fontSize="8" fontWeight="700" fill="currentColor">$</text></svg>;
-  if (type === "gift")
-    return <svg {...props}><rect x="4" y="12" width="20" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.6"/><rect x="4" y="8" width="20" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.6"/><path d="M14 8v16" stroke="currentColor" strokeWidth="1.6"/><path d="M14 8c0 0-2.5-4-5-2.5s-1 5 5 2.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/><path d="M14 8c0 0 2.5-4 5-2.5s1 5-5 2.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>;
+  const props = { size, strokeWidth: 1.6 };
+  if (type === "coin") return <Coins {...props} />;
+  if (type === "gift") return <Gift {...props} />;
   // trophy
-  return <svg {...props}><path d="M9 4h10v10a5 5 0 01-10 0V4z" stroke="currentColor" strokeWidth="1.6"/><path d="M9 8H5a3 3 0 003 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M19 8h4a3 3 0 01-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M14 19v4M10 23h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>;
+  return <Trophy {...props} />;
 }
 
 export default function PrizesSection() {

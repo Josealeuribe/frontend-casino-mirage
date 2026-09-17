@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { useAuth } from "@/features/auth/AuthContext";
+import { ApiError, cambiarPassword } from "@/shared/api/client";
+import { AdminError } from "../AdminStates";
 
 const card: React.CSSProperties = {
   background: "#0E0B28",
@@ -7,11 +10,132 @@ const card: React.CSSProperties = {
   padding: "1.5rem",
 };
 
-export default function MiCuenta() {
-  const { user } = useAuth();
+const inputStyle: React.CSSProperties = {
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.07)",
+  outline: "none",
+  width: "100%",
+  borderRadius: "0.75rem",
+  padding: "0.65rem 1rem",
+  color: "rgba(237,232,252,0.7)",
+  fontSize: "0.875rem",
+};
+
+// Política de contraseña reforzada también en el backend; esta validación
+// solo mejora la experiencia mostrando el error antes de golpear la API.
+function validarPassword(pass: string): string | null {
+  if (pass.length < 8) return "La contraseña debe tener al menos 8 caracteres.";
+  if (!/[A-Z]/.test(pass)) return "La contraseña debe incluir al menos una mayúscula.";
+  if (!/[0-9]/.test(pass)) return "La contraseña debe incluir al menos un número.";
+  return null;
+}
+
+function CambiarPasswordForm({ onDone, onCancel }: { onDone: () => void; onCancel: () => void }) {
+  const [actual, setActual] = useState("");
+  const [nueva, setNueva] = useState("");
+  const [confirmar, setConfirmar] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [ok, setOk] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (nueva !== confirmar) {
+      setError("La nueva contraseña y la confirmación no coinciden.");
+      return;
+    }
+    const policyError = validarPassword(nueva);
+    if (policyError) {
+      setError(policyError);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await cambiarPassword({ actual, nueva, confirmar });
+      setOk(true);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "No se pudo cambiar la contraseña.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (ok) {
+    return (
+      <div className="mt-3 space-y-3">
+        <p
+          className="text-sm rounded-xl px-4 py-3"
+          style={{ background: "rgba(16,185,129,0.08)", color: "#34D399", border: "1px solid rgba(16,185,129,0.18)" }}
+        >
+          Contraseña actualizada correctamente.
+        </p>
+        <button
+          onClick={onDone}
+          className="px-4 py-2 rounded-xl text-xs font-medium"
+          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(237,232,252,0.6)" }}
+        >
+          Cerrar
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-5 max-w-xl">
+    <form onSubmit={submit} className="mt-3 space-y-3">
+      <div>
+        <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "rgba(237,232,252,0.38)" }}>
+          Contraseña actual
+        </label>
+        <input type="password" value={actual} onChange={(e) => setActual(e.target.value)} style={inputStyle} required />
+      </div>
+      <div>
+        <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "rgba(237,232,252,0.38)" }}>
+          Nueva contraseña
+        </label>
+        <input type="password" value={nueva} onChange={(e) => setNueva(e.target.value)} style={inputStyle} required />
+        <p className="text-xs mt-1" style={{ color: "rgba(237,232,252,0.3)" }}>Mínimo 8 caracteres, 1 mayúscula y 1 número.</p>
+      </div>
+      <div>
+        <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "rgba(237,232,252,0.38)" }}>
+          Confirmar nueva contraseña
+        </label>
+        <input type="password" value={confirmar} onChange={(e) => setConfirmar(e.target.value)} style={inputStyle} required />
+      </div>
+
+      {error && <AdminError message={error} />}
+
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
+          style={{ background: "linear-gradient(135deg,#6B32D6,#1A5ED8)" }}
+        >
+          {submitting ? "Guardando..." : "Guardar contraseña"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={submitting}
+          className="px-4 py-2.5 rounded-xl text-sm"
+          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(237,232,252,0.6)" }}
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}
+
+export default function MiCuenta() {
+  const { user } = useAuth();
+  const [editingPassword, setEditingPassword] = useState(false);
+
+  return (
+    <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-white">Mi Cuenta</h1>
         <p className="text-sm mt-1" style={{ color: "rgba(237,232,252,0.4)" }}>
@@ -19,103 +143,74 @@ export default function MiCuenta() {
         </p>
       </div>
 
-      {/* Profile card */}
-      <div style={{ ...card, border: "1px solid rgba(107,50,214,0.22)" }}>
-        <div
-          className="flex items-center gap-5 mb-6 pb-6"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-        >
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Profile card */}
+        <div style={{ ...card, border: "1px solid rgba(107,50,214,0.22)" }}>
           <div
-            className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0"
-            style={{
-              background: "linear-gradient(135deg,#6B32D6,#1A5ED8)",
-              boxShadow: "0 4px 20px rgba(107,50,214,0.35)",
-            }}
+            className="flex items-center gap-5 mb-6 pb-6"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
           >
-            {user?.name?.[0] ?? "A"}
-          </div>
-          <div>
-            <p className="text-lg font-bold text-white">{user?.name ?? "Admin"}</p>
-            <p className="text-sm mt-0.5" style={{ color: "rgba(237,232,252,0.4)" }}>
-              Administrador · Centro Club Mirage
-            </p>
-            <span
-              className="text-xs px-2.5 py-1 rounded-full inline-block mt-2"
-              style={{ background: "rgba(107,50,214,0.12)", color: "#C4B5FD", border: "1px solid rgba(107,50,214,0.22)" }}
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0"
+              style={{
+                background: "linear-gradient(135deg,#6B32D6,#1A5ED8)",
+                boxShadow: "0 4px 20px rgba(107,50,214,0.35)",
+              }}
             >
-              Acceso completo
-            </span>
+              {user?.name?.[0] ?? "A"}
+            </div>
+            <div>
+              <p className="text-lg font-bold text-white">{user?.name ?? "Admin"}</p>
+              <p className="text-sm mt-0.5" style={{ color: "rgba(237,232,252,0.4)" }}>
+                Administrador · Centro Club Mirage
+              </p>
+              <span
+                className="text-xs px-2.5 py-1 rounded-full inline-block mt-2"
+                style={{ background: "rgba(107,50,214,0.12)", color: "#C4B5FD", border: "1px solid rgba(107,50,214,0.22)" }}
+              >
+                Acceso completo
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "rgba(237,232,252,0.38)" }}>
+                Nombre
+              </label>
+              <input type="text" value={user?.name ?? ""} readOnly className="w-full rounded-xl px-4 py-2.5 text-sm outline-none" style={inputStyle} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "rgba(237,232,252,0.38)" }}>
+                Email
+              </label>
+              <input type="email" value={user?.email ?? ""} readOnly className="w-full rounded-xl px-4 py-2.5 text-sm outline-none" style={inputStyle} />
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          {[
-            { label: "Nombre",       value: user?.name ?? "Admin",         type: "text" },
-            { label: "Usuario",      value: "admin",                        type: "text",     readOnly: true },
-            { label: "Email",        value: "admin@miragecasino.co",        type: "email" },
-            { label: "Contraseña",   value: "••••••••",                    type: "password" },
-          ].map((field, i) => (
-            <div key={i}>
-              <label
-                className="block text-xs font-medium uppercase tracking-wider mb-1.5"
-                style={{ color: "rgba(237,232,252,0.38)" }}
+        <div style={card}>
+          <h2 className="text-sm font-bold text-white mb-1">Seguridad</h2>
+          <p className="text-xs mb-4" style={{ color: "rgba(237,232,252,0.4)" }}>
+            Cambia tu contraseña cuando quieras.
+          </p>
+          {!editingPassword ? (
+            <div className="flex items-center gap-3">
+              <input type="password" value="••••••••" readOnly className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none" style={inputStyle} />
+              <button
+                onClick={() => setEditingPassword(true)}
+                className="text-xs px-3 py-2 rounded-xl transition-colors whitespace-nowrap"
+                style={{ background: "rgba(107,50,214,0.1)", border: "1px solid rgba(107,50,214,0.2)", color: "#C4B5FD" }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.2)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.1)"; }}
               >
-                {field.label}
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type={field.type}
-                  defaultValue={field.value}
-                  readOnly={field.readOnly}
-                  className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none"
-                  style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.07)",
-                    color: "rgba(237,232,252,0.7)",
-                  }}
-                />
-                {(field.label === "Email" || field.label === "Contraseña") && (
-                  <button
-                    className="text-xs px-3 py-2 rounded-xl transition-colors"
-                    style={{ background: "rgba(107,50,214,0.1)", border: "1px solid rgba(107,50,214,0.2)", color: "#C4B5FD" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.2)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.1)"; }}
-                  >
-                    Editar
-                  </button>
-                )}
-              </div>
+                Editar
+              </button>
             </div>
-          ))}
+          ) : (
+            <CambiarPasswordForm onDone={() => setEditingPassword(false)} onCancel={() => setEditingPassword(false)} />
+          )}
         </div>
-
-        <button
-          className="mt-6 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
-          style={{ background: "linear-gradient(135deg,#6B32D6,#1A5ED8)", boxShadow: "0 4px 16px rgba(107,50,214,0.28)" }}
-          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 6px 22px rgba(107,50,214,0.45)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(107,50,214,0.28)"; }}
-        >
-          Guardar cambios
-        </button>
-      </div>
-
-      {/* Danger zone */}
-      <div
-        className="rounded-2xl p-5"
-        style={{ background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.12)" }}
-      >
-        <h3 className="text-sm font-medium mb-1" style={{ color: "rgba(237,232,252,0.65)" }}>Zona de riesgo</h3>
-        <p className="text-xs mb-4" style={{ color: "rgba(237,232,252,0.3)" }}>
-          Las siguientes acciones son permanentes e irreversibles.
-        </p>
-        <button
-          className="text-xs px-4 py-2 rounded-xl transition-colors"
-          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", color: "#F87171" }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.14)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.08)"; }}
-        >
-          Eliminar cuenta
-        </button>
       </div>
     </div>
   );

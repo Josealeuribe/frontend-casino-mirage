@@ -12,7 +12,10 @@ import PoliticaPrivacidad from "@/features/legal/pages/PoliticaPrivacidad";
 import TratamientoDatos from "@/features/legal/pages/TratamientoDatos";
 import JuegoResponsable from "@/features/legal/pages/JuegoResponsable";
 import CondicionesPromocion from "@/features/legal/pages/CondicionesPromocion";
+import RegistrationPage from "@/features/registration/RegistrationPage";
 import AdminLayout from "@/features/admin/AdminLayout";
+import CajeroLayout from "@/features/cajero/CajeroLayout";
+import ClienteLayout from "@/features/cliente/ClienteLayout";
 
 export const router = createBrowserRouter(
   [
@@ -38,6 +41,10 @@ export const router = createBrowserRouter(
         { path: "como-funciona", Component: ComoFuncionaPage },
         { path: "sedes", Component: SedesPage },
         { path: "faq", Component: FaqPage },
+        // El registro cuelga del mismo layout publico (fondo, navbar, footer):
+        // se llega aqui desde el modal de premio de "/jugar" o desde "Ya
+        // tengo cuenta", nunca es una vista aislada.
+        { path: "registro", Component: RegistrationPage },
         // Las 5 opciones de la columna "Legal" del footer. No cuelgan del
         // navbar -- solo el footer enlaza aqui -- pero comparten el mismo
         // layout publico (fondo, navbar, footer) para no romper la navegacion.
@@ -53,6 +60,19 @@ export const router = createBrowserRouter(
       // plano, sin la imagen del casino.
       path: "/admin",
       Component: AdminLayout,
+    },
+    {
+      // El panel del cajero -- mostrador de caja, busca y confirma canjes.
+      // Mismo criterio que /admin: marco propio, sin el layout publico.
+      path: "/cajero",
+      Component: CajeroLayout,
+    },
+    {
+      // Cuenta del cliente: su bono, el codigo y donde redimirlo. Mismo
+      // criterio que /admin y /cajero -- marco propio, sin el layout
+      // publico (fondo del casino, navbar de navegacion general).
+      path: "/cuenta",
+      Component: ClienteLayout,
     },
   ],
   {

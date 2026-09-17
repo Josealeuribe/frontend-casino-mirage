@@ -126,6 +126,18 @@ html {
 @keyframes fadeInUp     { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 @keyframes sparkle-pulse { 0%,100%{opacity:.4; transform:scale(0.92)} 50%{opacity:1; transform:scale(1.08)} }
 @keyframes shimmer      { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+/* Destello del fondo de la cinta ticker: un brillo que la recorre de lado a
+   lado en bucle, independiente del desplazamiento del texto (que va encima,
+   en negro solido). En % (no en px) para que funcione igual sin importar el
+   ancho del elemento. */
+@keyframes texto-destello { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+/* Brillo pulsante del marco dorado de la cinta -- el "toque magico" del
+   borde, independiente del destello del fondo y del desplazamiento del
+   texto: las tres animaciones corren en paralelo sin pisarse. */
+@keyframes glow-gold {
+  0%, 100% { box-shadow: 0 0 14px rgba(245,214,123,0.35), inset 0 0 16px rgba(245,214,123,0.08); }
+  50%      { box-shadow: 0 0 32px rgba(245,214,123,0.7),  inset 0 0 26px rgba(245,214,123,0.18); }
+}
 
 .animate-spin-slow    { animation: spin-slow 22s linear infinite; }
 .animate-spin-reverse { animation: spin-reverse 16s linear infinite; }
@@ -138,4 +150,18 @@ html {
    se pisan: cada clase fija la propiedad `animation` completa, y solo la
    que aparece despues en la hoja de estilos sobrevive. */
 .animate-sparkle-float  { animation: sparkle-pulse 3.2s ease-in-out infinite, float 3.5s ease-in-out infinite; }
+
+/* Combina el destello del fondo con el brillo pulsante del marco -- una
+   sola declaracion `animation` con las dos separadas por coma, mismo
+   criterio que .animate-sparkle-float de arriba (declaraciones separadas se
+   pisan en vez de combinarse). El desplazamiento de la cinta (marquee-izq/
+   der, en el elemento hijo) es una animacion aparte y sigue corriendo
+   siempre, incluso si esta se apaga por reduced-motion. */
+.animate-marquee-magia {
+  background-size: 220% 100%;
+  animation: texto-destello 3.5s linear infinite, glow-gold 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-magia { animation: none; background-position: 0 0; box-shadow: 0 0 14px rgba(245,214,123,0.35); }
+}
 

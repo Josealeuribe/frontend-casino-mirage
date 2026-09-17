@@ -1,4 +1,15 @@
 import { useNavigate } from "react-router";
+import {
+  LayoutGrid,
+  BarChart3,
+  Users,
+  ClipboardList,
+  Clock,
+  Megaphone,
+  UserCog,
+  UserCircle,
+  LogOut,
+} from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import logoMirage from "@/imports/logo-mirage.png";
 
@@ -12,86 +23,42 @@ export const MODULES: ModuleDef[] = [
   {
     id: "vista-general",
     label: "Vista General",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="10" y="1.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="1.5" y="10" width="5.5" height="5.5" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="10" y="10" width="5.5" height="5.5" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    ),
+    icon: <LayoutGrid size={17} />,
   },
   {
     id: "dashboard",
     label: "Dashboard",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <path d="M1.5 12l4-5.5 3.5 3 4-6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M1.5 15.5h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <BarChart3 size={17} />,
   },
   {
     id: "clientes",
     label: "Clientes",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <circle cx="8.5" cy="5.5" r="3" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M2 15c0-3.314 2.91-6 6.5-6s6.5 2.686 6.5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <Users size={17} />,
   },
   {
     id: "auditoria",
     label: "Auditoría de Canjes",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <rect x="2.5" y="1.5" width="12" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M5.5 6.5h6M5.5 9.5h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <ClipboardList size={17} />,
   },
   {
     id: "vigencias",
     label: "Vigencias",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <circle cx="8.5" cy="8.5" r="6.5" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M8.5 5v3.5l2.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <Clock size={17} />,
   },
   {
     id: "campanas",
     label: "Campañas",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <path d="M8.5 2l2 5.5H16l-5 3.5 2 5.5-4.5-3.5L4 16.5l2-5.5-5-3.5h5.5L8.5 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-      </svg>
-    ),
+    icon: <Megaphone size={17} />,
   },
   {
     id: "personal",
     label: "Personal",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <circle cx="5.5" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M1 15c0-2.761 2.015-5 4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="11.5" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M16 15c0-2.761-2.015-5-4.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <UserCog size={17} />,
   },
   {
     id: "mi-cuenta",
     label: "Mi Cuenta",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <circle cx="8.5" cy="8.5" r="6.5" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="8.5" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M3 14.5a6 6 0 0111 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <UserCircle size={17} />,
   },
 ];
 
@@ -183,10 +150,7 @@ export default function Sidebar({ active, onSelect }: SidebarProps) {
           onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(237,232,252,0.65)"; e.currentTarget.style.background = "rgba(239,68,68,0.06)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(237,232,252,0.35)"; e.currentTarget.style.background = "transparent"; }}
         >
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-            <path d="M6 2.5H3a1 1 0 00-1 1v8a1 1 0 001 1h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-            <path d="M10 10l3.5-2.5L10 5M13.5 7.5H6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <LogOut size={15} />
           Cerrar Sesión
         </button>
       </div>

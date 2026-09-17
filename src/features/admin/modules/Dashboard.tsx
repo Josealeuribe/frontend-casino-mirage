@@ -1,14 +1,6 @@
-const WEEKLY = [
-  { day: "Lun", giros: 18, canjes: 6 },
-  { day: "Mar", giros: 24, canjes: 9 },
-  { day: "Mié", giros: 31, canjes: 14 },
-  { day: "Jue", giros: 22, canjes: 8 },
-  { day: "Vie", giros: 38, canjes: 17 },
-  { day: "Sáb", giros: 45, canjes: 22 },
-  { day: "Dom", giros: 29, canjes: 11 },
-];
-
-const max = Math.max(...WEEKLY.map((w) => w.giros));
+import { adminFetchDashboard } from "@/shared/api/client";
+import { useAdminFetch } from "../useAdminFetch";
+import { AdminCargando, AdminError } from "../AdminStates";
 
 const card: React.CSSProperties = {
   background: "#0E0B28",
@@ -17,6 +9,22 @@ const card: React.CSSProperties = {
 };
 
 export default function Dashboard() {
+  const { data, loading, error } = useAdminFetch(adminFetchDashboard);
+
+  if (loading) return <AdminCargando />;
+  if (error) return <AdminError message={error} />;
+  if (!data) return null;
+
+  const { kpisHoy, semanal, porSede } = data;
+  const max = Math.max(1, ...semanal.map((w) => w.giros));
+
+  const kpis = [
+    { label: "Giros hoy", value: String(kpisHoy.girosHoy) },
+    { label: "Canjes hoy", value: String(kpisHoy.canjesHoy) },
+    { label: "Tasa de canje", value: `${kpisHoy.tasaCanje}%` },
+    { label: "Valor entregado", value: `$${kpisHoy.valorEntregadoHoy.toLocaleString("es-CO")}` },
+  ];
+
   return (
     <div className="space-y-5">
       <div>
@@ -26,21 +34,10 @@ export default function Dashboard() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        {[
-          { label: "Giros hoy",       value: "29",  delta: "+12%", up: true },
-          { label: "Canjes hoy",      value: "11",  delta: "+5%",  up: true },
-          { label: "Tasa de canje",   value: "31%", delta: "-2%",  up: false },
-          { label: "Valor entregado", value: "$380K", delta: "+18%", up: true },
-        ].map((kpi, i) => (
+        {kpis.map((kpi, i) => (
           <div key={i} style={{ ...card, padding: "1.25rem" }}>
             <p className="text-xs mb-2" style={{ color: "rgba(237,232,252,0.4)" }}>{kpi.label}</p>
             <p className="text-2xl font-bold text-white">{kpi.value}</p>
-            <span
-              className="text-xs font-medium mt-1 inline-flex items-center gap-1"
-              style={{ color: kpi.up ? "#10B981" : "#F87171" }}
-            >
-              {kpi.up ? "↑" : "↓"} {kpi.delta}
-            </span>
           </div>
         ))}
       </div>
@@ -49,7 +46,7 @@ export default function Dashboard() {
       <div style={{ ...card, padding: "1.5rem" }}>
         <h3 className="font-bold text-white text-sm mb-6">Giros vs. Canjes — últimos 7 días</h3>
         <div className="flex items-end gap-2.5" style={{ height: 140 }}>
-          {WEEKLY.map((w, i) => (
+          {semanal.map((w, i) => (
             <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
               <div className="w-full flex gap-1 items-end" style={{ height: 118 }}>
                 <div
@@ -73,7 +70,7 @@ export default function Dashboard() {
                   title={`Canjes: ${w.canjes}`}
                 />
               </div>
-              <span className="text-xs" style={{ color: "rgba(237,232,252,0.3)" }}>{w.day}</span>
+              <span className="text-xs" style={{ color: "rgba(237,232,252,0.3)" }}>{w.dia}</span>
             </div>
           ))}
         </div>
@@ -95,7 +92,7 @@ export default function Dashboard() {
         <table className="w-full text-sm">
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              {["Sede", "Giros", "Canjes", "Tasa", "Valor"].map((h) => (
+              {["Sede", "Canjes", "Valor"].map((h) => (
                 <th key={h} className="text-left text-xs font-medium pb-3 pr-5 uppercase tracking-wider" style={{ color: "rgba(237,232,252,0.3)" }}>
                   {h}
                 </th>
@@ -103,18 +100,20 @@ export default function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {[
-              { sede: "Mirage 3",     giros: 78, canjes: 26, tasa: "33%", valor: "$680K" },
-              { sede: "Mirage No. 2", giros: 68, canjes: 19, tasa: "28%", valor: "$520K" },
-            ].map((row, i, arr) => (
+            {porSede.map((row, i, arr) => (
               <tr key={i} style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
                 <td className="py-3 pr-5" style={{ color: "rgba(237,232,252,0.7)" }}>{row.sede}</td>
-                <td className="py-3 pr-5" style={{ color: "rgba(237,232,252,0.5)" }}>{row.giros}</td>
                 <td className="py-3 pr-5" style={{ color: "rgba(237,232,252,0.5)" }}>{row.canjes}</td>
-                <td className="py-3 pr-5 font-medium" style={{ color: "#10B981" }}>{row.tasa}</td>
-                <td className="py-3 pr-5 font-medium" style={{ color: "#D4A827" }}>{row.valor}</td>
+                <td className="py-3 pr-5 font-medium" style={{ color: "#D4A827" }}>${row.valor.toLocaleString("es-CO")}</td>
               </tr>
             ))}
+            {porSede.length === 0 && (
+              <tr>
+                <td colSpan={3} className="py-6 text-center text-sm" style={{ color: "rgba(237,232,252,0.3)" }}>
+                  Sin datos todavía.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

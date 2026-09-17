@@ -1,9 +1,8 @@
 # syntax=docker/dockerfile:1
 
 # Landing de Arauca (React + Vite). Se compila a estaticos y se sirve con
-# nginx -- mismo patron que Casino-cucuta/Clients-innova, simplificado: sin
-# TLS propio (lo termina el Nginx del host) y sin llamadas a ninguna API
-# (este frontend hoy no tiene backend propio).
+# nginx -- mismo patron que Casino-cucuta/Clients-innova. El backend real
+# (../backend) corre aparte; nginx.conf hace de proxy hacia el en runtime.
 
 # --- Compilacion ------------------------------------------------------------
 FROM node:22-alpine AS build
@@ -25,6 +24,14 @@ COPY . .
 # landings bajo subpath se pasa p.ej. FIGMA_PUBLIC_URL=/arauca.
 ARG FIGMA_PUBLIC_URL=""
 ENV FIGMA_PUBLIC_URL=$FIGMA_PUBLIC_URL
+
+# Ruta base de la API, quemada en el bundle en tiempo de build (Vite solo
+# expone en el cliente las variables VITE_* -- ver src/shared/api/client.ts).
+# Por defecto "/api": nginx.conf hace proxy_pass de ese path hacia el
+# contenedor `api` de docker-compose.yml, asi que el navegador nunca necesita
+# conocer su host/puerto real y no hay CORS que configurar en produccion.
+ARG VITE_API_URL="/api"
+ENV VITE_API_URL=$VITE_API_URL
 RUN pnpm build
 
 # --- Imagen final -----------------------------------------------------------

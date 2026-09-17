@@ -1,3 +1,4 @@
+import { Instagram, ShieldAlert } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router";
 import { useAuth } from "@/features/auth/AuthContext";
 import { NAV_LINKS, esVistaActiva } from "@/features/landing/navigation";
@@ -66,11 +67,7 @@ export default function Footer() {
                 onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(212,168,39,0.22)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(212,168,39,0.1)"; }}
               >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <rect x="2.5" y="2.5" width="15" height="15" rx="4.5" stroke="currentColor" strokeWidth="1.4" />
-                  <circle cx="10" cy="10" r="3.8" stroke="currentColor" strokeWidth="1.4" />
-                  <circle cx="14.6" cy="5.4" r="1" fill="currentColor" />
-                </svg>
+                <Instagram size={20} strokeWidth={1.6} />
               </a>
             </div>
 
@@ -166,10 +163,7 @@ export default function Footer() {
             className="flex items-center justify-center gap-1.5 text-center text-xs"
             style={{ color: "rgba(237,232,252,0.28)" }}
           >
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="flex-shrink-0">
-              <path d="M6.5 1L11 3v3.5c0 2.8-1.9 5.2-4.5 5.8C3.9 11.7 2 9.3 2 6.5V3l4.5-2z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
-              <path d="M6.5 4.5v2.5M6.5 8.8v.1" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
-            </svg>
+            <ShieldAlert size={13} strokeWidth={1.6} className="flex-shrink-0" />
             Solo para mayores de 18 años · Juega con responsabilidad · Línea de ayuda: 01-8000-111-444
           </p>
         </div>

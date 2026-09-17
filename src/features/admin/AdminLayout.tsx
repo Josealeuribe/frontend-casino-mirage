@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Bell } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useTituloVista } from "@/shared/hooks/useTituloVista";
@@ -30,12 +31,12 @@ export default function AdminLayout() {
 
   useTituloVista("Panel admin");
 
-  if (!user) {
+  if (!user || user.role !== "admin") {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#080718" }}>
         <div className="text-center">
           <p className="mb-5 text-sm" style={{ color: "rgba(237,232,252,0.45)" }}>
-            Debes iniciar sesión para acceder al panel.
+            {user ? "Tu cuenta no tiene acceso al panel de administración." : "Debes iniciar sesión para acceder al panel."}
           </p>
           <button
             onClick={() => navigate("/")}
@@ -75,10 +76,7 @@ export default function AdminLayout() {
               onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.18)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.08)"; }}
             >
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <path d="M7.5 1.5a5 5 0 015 5c0 2.5.5 4 1.5 5H1c1-1 1.5-2.5 1.5-5a5 5 0 015-5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-                <path d="M6 12.5a1.5 1.5 0 003 0" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-              </svg>
+              <Bell size={15} />
               <span
                 className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
                 style={{ background: "#6B32D6" }}

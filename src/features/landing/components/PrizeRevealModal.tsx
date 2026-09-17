@@ -1,3 +1,4 @@
+import { Coins, Gift, Trophy, Clock } from "lucide-react";
 import type { Prize } from "../data/prizes";
 
 interface Props {
@@ -8,34 +9,11 @@ interface Props {
 }
 
 function PrizeIcon({ type }: { type: string }) {
-  const s = { color: "#D4A827", width: 36, height: 36 };
-  if (type === "coin")
-    return (
-      <svg {...s} viewBox="0 0 36 36" fill="none">
-        <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="1.8" />
-        <circle cx="18" cy="18" r="9" stroke="currentColor" strokeWidth="1.8" />
-        <text x="18" y="22" textAnchor="middle" fontSize="10" fontWeight="700" fill="currentColor">$</text>
-      </svg>
-    );
-  if (type === "gift")
-    return (
-      <svg {...s} viewBox="0 0 36 36" fill="none">
-        <rect x="5" y="16" width="26" height="16" rx="2" stroke="currentColor" strokeWidth="1.8" />
-        <rect x="5" y="10" width="26" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M18 10v22" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M18 10c0 0-3-5-6-3s-1 6 6 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M18 10c0 0 3-5 6-3s1 6-6 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-      </svg>
-    );
+  const s = { color: "#D4A827", size: 36, strokeWidth: 1.8 };
+  if (type === "coin") return <Coins {...s} />;
+  if (type === "gift") return <Gift {...s} />;
   // trophy
-  return (
-    <svg {...s} viewBox="0 0 36 36" fill="none">
-      <path d="M12 6h12v12a6 6 0 01-12 0V6z" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M12 10H7a4 4 0 004 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M24 10h5a4 4 0 01-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M18 24v4M14 28h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
+  return <Trophy {...s} />;
 }
 
 export default function PrizeRevealModal({ prize, spinsLeft, onRegister, onIgnore }: Props) {
@@ -105,10 +83,7 @@ export default function PrizeRevealModal({ prize, spinsLeft, onRegister, onIgnor
               className="mt-5 flex items-center justify-center gap-2 text-xs px-4 py-2 rounded-full mx-auto w-fit"
               style={{ background: "rgba(107,50,214,0.1)", border: "1px solid rgba(107,50,214,0.2)", color: "rgba(237,232,252,0.5)" }}
             >
-              <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                <circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" strokeWidth="1.1" />
-                <path d="M5.5 3v2.5l1.5 1" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
-              </svg>
+              <Clock size={11} strokeWidth={1.6} />
               Te {spinsLeft === 1 ? "queda" : "quedan"} <strong style={{ color: "#C4B5FD" }}>{spinsLeft} {spinsLeft === 1 ? "intento" : "intentos"}</strong> más
             </div>
           )}

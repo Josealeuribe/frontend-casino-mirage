@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Menu } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/AuthContext";
 import { NAV_LINKS, esVistaActiva } from "../navigation";
@@ -30,36 +31,64 @@ export default function Navbar() {
       // Cada bloque fija su columna con col-start: un hijo con display:none no
       // ocupa celda en un grid, y al ocultarse los enlaces en movil los
       // botones se corrian al centro.
-      className="fixed top-0 left-0 right-0 z-40 grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-10 h-[var(--nav-h)]"
+      className="fixed top-0 left-0 right-0 z-40 grid grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 md:px-10 h-[var(--nav-h)]"
       style={{
+        // El intento de tono calido (bronce/ambar) no combinaba con el
+        // resto del aplicativo -- de vuelta al tono original.
         background: "rgba(8,7,24,0.92)",
         borderBottom: "1px solid rgba(107,50,214,0.18)",
         backdropFilter: "blur(14px)",
       }}
     >
-      {/* Logo -- lleva al punto de entrada, que es la ruleta. */}
-      <Link to="/" className="col-start-1 flex items-center gap-3 justify-self-start">
+      {/* --- Movil verdadero (debajo de sm, ~640px): icono y nombre por
+          separado, no como un bloque conjunto --------------------------- */}
+
+      {/* Icono a la izquierda. col-start-1 + justify-self-start es la misma
+          columna que usa el logo de escritorio (ver mas abajo) -- como uno
+          se oculta cuando el otro aparece, nunca compiten por el espacio. */}
+      <Link to="/" className="col-start-1 flex items-center justify-self-start sm:hidden">
+        <img src={logoMirage} alt="Centro Club Mirage" className="h-8 w-auto object-contain" />
+      </Link>
+
+      {/* Nombre centrado en TODA la barra. No hace falta position:absolute
+          (que en el intento anterior traia su propio problema de ancho):
+          col-start-2 es la columna "auto" entre dos columnas 1fr iguales,
+          el mismo mecanismo que ya centra los enlaces de escritorio mas
+          abajo. Con dos columnas iguales a los lados, lo que caiga en el
+          medio queda centrado en el ancho completo automaticamente. */}
+      <Link to="/" className="col-start-2 flex justify-self-center sm:hidden">
+        <span
+          className="font-bold text-sm uppercase whitespace-nowrap"
+          style={{ color: "#D4A827", letterSpacing: "0.03em", fontFamily: "Roboto" }}
+        >
+          Centro Club{" "}
+          <span className="text-xs" style={{ color: "#00C4D8" }}>
+            Mirage
+          </span>
+        </span>
+      </Link>
+
+      {/* --- Tablet y escritorio (a partir de sm): icono y nombre juntos,
+          alineados a la izquierda -- igual que se dejo la vez anterior --- */}
+      <Link to="/" className="col-start-1 hidden items-center gap-2.5 justify-self-start sm:flex">
         <img
           src={logoMirage}
           alt="Centro Club Mirage"
-          className="h-14 md:h-16 w-auto object-contain"
+          className="h-10 w-auto object-contain md:h-11 2xl:h-12"
         />
-        {/* Visible siempre, incluido movil -- antes tenia "hidden sm:block" y
-            desaparecia por completo debajo de 640px, dejando el navbar con
-            solo el logo y sin nombre. Oculto solo en xl (1280-1535): ahi
-            conviven los seis enlaces y los dos botones y el texto ya no
-            cabe, se monta sobre "Inicio". La imagen del logo ya lleva el
-            nombre, asi que en esa franja no se pierde informacion. */}
-        {/* Interletrado bajado de 0.18em a 0.05em: pedido explicito de que el
-            titulo quede "mas junto". "Mirage" va un escalon de tamano por
-            debajo de "Centro Club", no al mismo tamano. En movil ambos bajan
-            un poco mas, para que quepan junto al logo sin desbordar. */}
+        {/* Oculto solo en xl (1280-1535): ahi conviven los seis enlaces y
+            los dos botones y el texto ya no cabe, se monta sobre "Inicio".
+            La imagen del logo ya lleva el nombre, asi que en esa franja no
+            se pierde informacion. Interletrado apretado (0.03-0.04em):
+            pedido explicito de que el titulo quede "mas junto". "Mirage" va
+            un escalon de tamano por debajo de "Centro Club", no al mismo
+            tamano. */}
         <span
-          className="block xl:hidden 2xl:block font-bold text-[11px] sm:text-base 2xl:text-xl uppercase whitespace-nowrap"
+          className="block xl:hidden 2xl:block font-bold text-base 2xl:text-xl uppercase whitespace-nowrap"
           style={{ color: "#D4A827", letterSpacing: "0.04em", fontFamily: "Roboto" }}
         >
           Centro Club{" "}
-          <span className="text-[10px] sm:text-xs 2xl:text-sm" style={{ color: "#00C4D8" }}>
+          <span className="text-xs 2xl:text-sm" style={{ color: "#00C4D8" }}>
             Mirage
           </span>
         </span>
@@ -91,7 +120,7 @@ export default function Navbar() {
         {user ? (
           <>
             <button
-              onClick={() => navigate("/admin")}
+              onClick={() => navigate(user.role === "admin" ? "/admin" : user.role === "cajero" ? "/cajero" : "/cuenta")}
               className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200"
               style={{
                 border: "1px solid rgba(107,50,214,0.5)",
@@ -101,7 +130,7 @@ export default function Navbar() {
               onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.2)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.1)"; }}
             >
-              Panel admin
+              {user.role === "admin" ? "Panel admin" : user.role === "cajero" ? "Panel cajero" : "Mi cuenta"}
             </button>
             <button
               onClick={logout}
@@ -141,7 +170,7 @@ export default function Navbar() {
               Iniciar Sesión
             </button>
             <button
-              onClick={openLogin}
+              onClick={() => navigate("/registro")}
               className="px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200"
               style={{
                 background: "linear-gradient(135deg, #6B32D6 0%, #1A5ED8 100%)",
@@ -162,9 +191,7 @@ export default function Navbar() {
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Abrir menú"
         >
-          <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
-            <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-          </svg>
+          <Menu size={24} strokeWidth={1.7} />
         </button>
       </div>
 
@@ -207,7 +234,7 @@ export default function Navbar() {
                 Iniciar Sesión
               </button>
               <button
-                onClick={() => { openLogin(); setMenuOpen(false); }}
+                onClick={() => { navigate("/registro"); setMenuOpen(false); }}
                 className="flex-1 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200"
                 style={{
                   background: "linear-gradient(135deg, #6B32D6 0%, #1A5ED8 100%)",

@@ -1,15 +1,9 @@
 import { useState } from "react";
-
-const ALL_CLIENTS = [
-  { id: "001", name: "David Ladino",   doc: "12.345.678", sede: "Mirage 3",     giros: 3, bono: "$50.000",    estado: "Pendiente", fecha: "13 sept 2026" },
-  { id: "002", name: "María González", doc: "23.456.789", sede: "Mirage No. 2", giros: 2, bono: "$10.000",    estado: "Canjeado",  fecha: "13 sept 2026" },
-  { id: "003", name: "Carlos Pérez",   doc: "34.567.890", sede: "Mirage 3",     giros: 3, bono: "$20.000",    estado: "Canjeado",  fecha: "12 sept 2026" },
-  { id: "004", name: "Ana Rodríguez",  doc: "45.678.901", sede: "Mirage 3",     giros: 1, bono: "$10.000",    estado: "Pendiente", fecha: "12 sept 2026" },
-  { id: "005", name: "Luis Martínez",  doc: "56.789.012", sede: "Mirage No. 2", giros: 3, bono: "$50.000",    estado: "Canjeado",  fecha: "11 sept 2026" },
-  { id: "006", name: "Paola Torres",   doc: "67.890.123", sede: "Mirage 3",     giros: 2, bono: "$20.000",    estado: "Pendiente", fecha: "11 sept 2026" },
-  { id: "007", name: "Jorge Sánchez",  doc: "78.901.234", sede: "Mirage 3",     giros: 3, bono: "$20.000",    estado: "Pendiente", fecha: "10 sept 2026" },
-  { id: "008", name: "Sandra López",   doc: "89.012.345", sede: "Mirage No. 2", giros: 3, bono: "$10.000",    estado: "Canjeado",  fecha: "10 sept 2026" },
-];
+import { Download, Search } from "lucide-react";
+import { adminFetchClientes, type AdminCliente } from "@/shared/api/client";
+import { useAdminFetch } from "../useAdminFetch";
+import { AdminCargando, AdminError } from "../AdminStates";
+import { descargarExcel, type ColumnaExcel } from "../excelExport";
 
 const card: React.CSSProperties = {
   background: "#0E0B28",
@@ -18,13 +12,84 @@ const card: React.CSSProperties = {
   overflow: "hidden",
 };
 
+function formatFecha(fecha: string) {
+  return new Date(fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function formatFechaHora(fecha: string | null) {
+  if (!fecha) return "";
+  return new Date(fecha).toLocaleString("es-CO");
+}
+
+const COLUMNAS_CLIENTES: ColumnaExcel[] = [
+  { header: "ID", key: "id", width: 8 },
+  { header: "Nombres", key: "nombres", width: 18 },
+  { header: "Apellidos", key: "apellidos", width: 18 },
+  { header: "Tipo de documento", key: "docTipo", width: 20 },
+  { header: "Número de documento", key: "docNumero", width: 18 },
+  { header: "Fecha de nacimiento", key: "nacimiento", width: 16 },
+  { header: "Teléfono", key: "telefono", width: 14 },
+  { header: "Departamento", key: "departamento", width: 20 },
+  { header: "Ciudad", key: "ciudad", width: 16 },
+  { header: "Email", key: "email", width: 26 },
+  { header: "Fecha de registro", key: "registro", width: 20 },
+  { header: "Código de bono", key: "codigoBono", width: 18 },
+  { header: "Premio", key: "premio", width: 16 },
+  { header: "Valor del premio", key: "valor", width: 16, currency: true },
+  { header: "Estado del bono", key: "estadoBono", width: 16 },
+  { header: "Sede de redención", key: "sede", width: 22 },
+  { header: "Fecha de canje", key: "fechaCanje", width: 20 },
+];
+
+// Exporta absolutamente todo lo que el backend sabe de cada cliente, no solo
+// las columnas que caben en la tabla de pantalla (esta pidió explícitamente
+// "toda la información... toda en general").
+async function exportarClientes(clientes: AdminCliente[]) {
+  const filas = clientes.map((c) => ({
+    id: c.id,
+    nombres: c.nombres,
+    apellidos: c.apellidos,
+    docTipo: c.docTipo,
+    docNumero: c.docNumero,
+    nacimiento: formatFecha(c.nacimiento),
+    telefono: c.telefono,
+    departamento: c.departamento,
+    ciudad: c.ciudad,
+    email: c.email,
+    registro: formatFechaHora(c.createdAt),
+    codigoBono: c.bono?.codigo ?? "",
+    premio: c.bono?.premio.nombre ?? "",
+    valor: c.bono ? c.bono.premio.monto : "",
+    estadoBono: c.bono ? (c.bono.estado === "reclamado" ? "Canjeado" : "Pendiente") : "Sin bono",
+    sede: c.bono?.sede ?? "",
+    fechaCanje: formatFechaHora(c.bono?.canjeadoEn ?? null),
+  }));
+  await descargarExcel(`clientes-centro-club-mirage-${new Date().toISOString().slice(0, 10)}.xlsx`, "Clientes", COLUMNAS_CLIENTES, filas);
+}
+
 export default function Clientes() {
+  const { data, loading, error } = useAdminFetch(adminFetchClientes);
   const [search, setSearch] = useState("");
-  const filtered = ALL_CLIENTS.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.doc.includes(search)
-  );
+  const [exportando, setExportando] = useState(false);
+
+  if (loading) return <AdminCargando />;
+  if (error) return <AdminError message={error} />;
+  if (!data) return null;
+
+  const clientes = data.clientes;
+  const filtered = clientes.filter((c) => {
+    const nombreCompleto = `${c.nombres} ${c.apellidos}`.toLowerCase();
+    return nombreCompleto.includes(search.toLowerCase()) || c.docNumero.includes(search);
+  });
+
+  const handleExportar = async () => {
+    setExportando(true);
+    try {
+      await exportarClientes(clientes);
+    } finally {
+      setExportando(false);
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -32,24 +97,25 @@ export default function Clientes() {
         <div>
           <h1 className="text-2xl font-bold text-white">Clientes</h1>
           <p className="text-sm mt-1" style={{ color: "rgba(237,232,252,0.4)" }}>
-            {ALL_CLIENTS.length} clientes registrados en la promoción
+            {clientes.length} clientes registrados en la promoción
           </p>
         </div>
         <button
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
-          style={{ background: "linear-gradient(135deg,#6B32D6,#1A5ED8)", color: "#fff" }}
+          onClick={handleExportar}
+          disabled={clientes.length === 0 || exportando}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(237,232,252,0.6)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
         >
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5v10M1.5 6.5h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
-          Agregar cliente
+          <Download size={13} />
+          {exportando ? "Generando..." : "Descargar Excel"}
         </button>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "rgba(237,232,252,0.3)" }}>
-          <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.3" />
-          <path d="M9.5 9.5L12 12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-        </svg>
+        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "rgba(237,232,252,0.3)" }} />
         <input
           type="text"
           placeholder="Buscar por nombre o documento..."
@@ -71,7 +137,7 @@ export default function Clientes() {
         <table className="w-full text-sm">
           <thead style={{ background: "#0C0924" }}>
             <tr>
-              {["#", "Nombre", "Documento", "Sede", "Giros", "Bono", "Estado", "Fecha"].map((h) => (
+              {["#", "Nombre", "Documento", "Sede", "Bono", "Estado", "Fecha"].map((h) => (
                 <th key={h} className="text-left text-xs font-medium px-4 py-3 uppercase tracking-wider" style={{ color: "rgba(237,232,252,0.3)" }}>
                   {h}
                 </th>
@@ -79,38 +145,41 @@ export default function Clientes() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c, i) => (
-              <tr
-                key={c.id}
-                style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
-                className="transition-colors"
-                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.04)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-              >
-                <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.25)" }}>{c.id}</td>
-                <td className="px-4 py-3 font-medium" style={{ color: "rgba(237,232,252,0.85)" }}>{c.name}</td>
-                <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.doc}</td>
-                <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.sede}</td>
-                <td className="px-4 py-3 text-center text-xs" style={{ color: "rgba(237,232,252,0.55)" }}>{c.giros}/3</td>
-                <td className="px-4 py-3 font-semibold text-sm" style={{ color: "#D4A827" }}>{c.bono}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className="px-2.5 py-1 rounded-full text-xs font-medium"
-                    style={
-                      c.estado === "Canjeado"
-                        ? { background: "rgba(16,185,129,0.1)", color: "#34D399", border: "1px solid rgba(16,185,129,0.15)" }
-                        : { background: "rgba(212,168,39,0.1)", color: "#D4A827",  border: "1px solid rgba(212,168,39,0.18)" }
-                    }
-                  >
-                    {c.estado}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.3)" }}>{c.fecha}</td>
-              </tr>
-            ))}
+            {filtered.map((c) => {
+              const estado = c.bono?.estado === "reclamado" ? "Canjeado" : c.bono ? "Pendiente" : "Sin bono";
+              const estadoStyle =
+                estado === "Canjeado"
+                  ? { background: "rgba(16,185,129,0.1)", color: "#34D399", border: "1px solid rgba(16,185,129,0.15)" }
+                  : estado === "Pendiente"
+                  ? { background: "rgba(212,168,39,0.1)", color: "#D4A827", border: "1px solid rgba(212,168,39,0.18)" }
+                  : { background: "rgba(100,116,139,0.1)", color: "#94A3B8", border: "1px solid rgba(100,116,139,0.15)" };
+              return (
+                <tr
+                  key={c.id}
+                  style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+                  className="transition-colors"
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.04)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                >
+                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.25)" }}>{c.id}</td>
+                  <td className="px-4 py-3 font-medium" style={{ color: "rgba(237,232,252,0.85)" }}>{c.nombres} {c.apellidos}</td>
+                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.docNumero}</td>
+                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.bono?.sede ?? "—"}</td>
+                  <td className="px-4 py-3 font-semibold text-sm" style={{ color: "#D4A827" }}>
+                    {c.bono ? `$${c.bono.premio.monto.toLocaleString("es-CO")}` : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="px-2.5 py-1 rounded-full text-xs font-medium" style={estadoStyle}>
+                      {estado}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.3)" }}>{formatFecha(c.createdAt)}</td>
+                </tr>
+              );
+            })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-sm" style={{ color: "rgba(237,232,252,0.28)" }}>
+                <td colSpan={7} className="px-4 py-10 text-center text-sm" style={{ color: "rgba(237,232,252,0.28)" }}>
                   Sin resultados para "{search}"
                 </td>
               </tr>

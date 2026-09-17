@@ -6,7 +6,7 @@ import LoginModal from "@/features/auth/LoginModal";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useTituloVista } from "@/shared/hooks/useTituloVista";
 import { NAV_LINKS } from "./navigation";
-import fondoArauca from "@/imports/imagen-fondo-arauca.jpg";
+import fondoArauca from "@/imports/tragamonedas-modal.avif";
 
 /** Marco comun de todas las vistas publicas: fondo, navbar y footer. Lo que
  *  cambia entre una opcion del navbar y otra es solo el <Outlet>. */
@@ -48,7 +48,11 @@ export default function LandingLayout() {
           className="h-full w-full scale-110 object-cover"
           style={{ filter: "blur(3px) brightness(0.28) saturate(0.7)" }}
         />
-        <div className="absolute inset-0" style={{ background: "rgba(8,7,24,0.55)" }} />
+        {/* Antes era rgba(8,7,24,0.55) -- ese morado-azul a mas de la mitad
+            de opacidad se comia el color real de la foto. Un negro casi
+            neutro y mas transparente deja ver la imagen de fondo de verdad
+            y solo oscurece lo justo para que el texto siga siendo legible. */}
+        <div className="absolute inset-0" style={{ background: "rgba(6,5,8,0.4)" }} />
       </div>
 
       <div className="relative z-10 flex min-h-screen flex-col">

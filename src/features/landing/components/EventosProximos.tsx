@@ -1,3 +1,5 @@
+import { PartyPopper } from "lucide-react";
+
 /** Agenda de eventos.
  *
  *  Hoy no hay ninguno programado, así que solo se pinta el estado vacío. Cuando
@@ -22,27 +24,7 @@ export default function EventosProximos() {
         style={{ color: "#D4A827" }}
         aria-hidden="true"
       >
-        <svg width="46" height="46" viewBox="0 0 46 46" fill="none">
-          {/* Cono */}
-          <path
-            d="M6 40l9.5-21.5L27.5 30.5 6 40z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-          <path d="M12 27l7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          {/* Serpentinas saliendo */}
-          <path
-            d="M29 19c3-3 3-7 1-9M34 24c4-1 6-4 6-7M25 13c1-4 4-6 7-6"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-          {/* Confeti */}
-          <circle cx="38" cy="14" r="1.6" fill="currentColor" />
-          <circle cx="30" cy="6" r="1.4" fill="currentColor" />
-          <circle cx="41" cy="30" r="1.4" fill="currentColor" />
-        </svg>
+        <PartyPopper size={46} strokeWidth={1.8} />
       </span>
 
       <h3 className="text-2xl font-black text-white">¡Próximamente!</h3>

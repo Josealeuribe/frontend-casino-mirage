@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { SEDES } from "@/shared/data/sedes";
 
 const NOMBRES_SEDES = SEDES.map((sede) => sede.nombre).join(" o ");
@@ -74,9 +75,7 @@ export default function FAQSection() {
                     transform: open === i ? "rotate(45deg)" : "rotate(0)",
                   }}
                 >
-                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                    <path d="M5.5 1.5v8M1.5 5.5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
+                  <Plus size={11} strokeWidth={1.5} />
                 </span>
               </button>
               {open === i && (

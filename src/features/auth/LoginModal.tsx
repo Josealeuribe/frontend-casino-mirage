@@ -15,13 +15,17 @@ export default function LoginModal() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    await new Promise((r) => setTimeout(r, 600));
-    const ok = login(username, password);
+    const result = await login(username, password);
     setLoading(false);
-    if (ok) {
-      navigate("/admin");
+    if (result.ok) {
+      // El rol decide a donde va cada quien: el admin y el cajero tienen
+      // paneles propios, y un cliente no tiene panel -- vuelve al inicio,
+      // donde ya puede ver el estado de su bono.
+      if (result.role === "admin") navigate("/admin");
+      else if (result.role === "cajero") navigate("/cajero");
+      else navigate("/cuenta");
     } else {
-      setError("Credenciales incorrectas. Intenta con admin / admin123");
+      setError(result.error ?? "No se pudo iniciar sesión.");
     }
   };
 
@@ -63,22 +67,22 @@ export default function LoginModal() {
 
         <div className="flex flex-col items-center mb-8">
           <img src={logoMirage} alt="Centro Club Mirage" className="h-16 w-auto mb-4 object-contain" />
-          <h2 className="text-xl font-bold text-white">Acceso Admin</h2>
-          <p className="text-xs mt-1" style={{ color: "rgba(237,232,252,0.4)" }}>
-            Ingresa tus credenciales para continuar
+          <h2 className="text-xl font-bold text-white">Iniciar Sesión</h2>
+          <p className="text-xs mt-1 text-center" style={{ color: "rgba(237,232,252,0.4)" }}>
+            Personal administrativo, cajeros y clientes
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: "rgba(237,232,252,0.4)" }}>
-              Usuario
+              Correo o documento
             </label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="admin"
+              placeholder="tu@correo.com"
               style={inputStyle}
               onFocus={(e) => { e.target.style.borderColor = "rgba(107,50,214,0.55)"; }}
               onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.09)"; }}
@@ -124,13 +128,9 @@ export default function LoginModal() {
               boxShadow: loading ? "none" : "0 6px 24px rgba(107,50,214,0.35)",
             }}
           >
-            {loading ? "Verificando..." : "Ingresar al Panel"}
+            {loading ? "Verificando..." : "Ingresar"}
           </button>
         </form>
-
-        <p className="text-center text-xs mt-5" style={{ color: "rgba(237,232,252,0.22)" }}>
-          Demo: <span style={{ color: "rgba(237,232,252,0.4)" }}>admin / admin123</span>
-        </p>
       </div>
     </div>
   );

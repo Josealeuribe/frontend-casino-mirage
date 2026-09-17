@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { RotateCw, Trophy, HelpCircle, MapPin } from "lucide-react";
 import Carousel, { type Slide } from "../components/Carousel";
 import VideoShowcase from "../components/VideoShowcase";
 import EventosProximos from "../components/EventosProximos";
@@ -7,13 +8,20 @@ import Marquee from "@/shared/components/Marquee";
 import { MENSAJES_CINTA } from "../data/mensajesCinta";
 import TituloSeccion from "@/shared/components/TituloSeccion";
 import { SEDES } from "@/shared/data/sedes";
-import foto01 from "@/imports/videos/poster-01.jpg";
-import foto02 from "@/imports/videos/poster-02.jpg";
-import foto03 from "@/imports/videos/poster-03.jpg";
+// Las "-web" son copias redimensionadas (1920px de ancho) de las fotos
+// reales que llegaron a imports/: los originales pesaban 3-16 MB cada uno
+// (hasta 5168x4134px, resolucion de camara) para mostrarse en un carrusel
+// que nunca los necesita a mas de 1920px de ancho. Con eso decodificando en
+// el navegador, el carrusel se hubiera sentido trabado. Los originales
+// quedan intactos en imports/ por si hacen falta en otro tamano.
+//
+// La foto "-2" no llego (el nombre salta de 1 a 3 y 4), asi que foto02 usa
+// la 4 -- son tres fotos reales distintas, solo que numeradas 1/3/4 en vez
+// de 1/2/3.
+import foto01 from "@/imports/imagen-casino-arauca-1-web.jpg";
+import foto02 from "@/imports/imagen-casino-arauca-4-web.jpg";
+import foto03 from "@/imports/imagen-casino-arauca-3-web.jpg";
 
-// Provisionales: son los primeros fotogramas de los videos, lo único que hay
-// hoy en imports/ con aspecto de foto del local. Sustitúyelos por fotos
-// propias cuando las tengas -- basta cambiar estos tres import.
 const SLIDES: Slide[] = [
   { src: foto03, alt: "Interior de Centro Club Mirage, Arauca" },
   { src: foto01, alt: "Sala de máquinas de Centro Club Mirage" },
@@ -34,59 +42,31 @@ const ACCESOS: Acceso[] = [
     titulo: "Gira y Gana",
     desc: "Gira la ruleta y descubre tu bono de bienvenida.",
     destacado: true,
-    icono: (
-      <>
-        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M8 12a4 4 0 018 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M16 9v3h-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </>
-    ),
+    icono: <RotateCw size={22} strokeWidth={1.5} />,
   },
   {
     to: "/premios",
     titulo: "Premios",
     desc: "Bonos de $10.000, $20.000 y $50.000.",
-    icono: (
-      <>
-        <path d="M7 4h10v9a5 5 0 01-10 0V4z" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M7 7H4a3 3 0 003 3M17 7h3a3 3 0 01-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 18v3M9 21h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </>
-    ),
+    icono: <Trophy size={22} strokeWidth={1.5} />,
   },
   {
     to: "/como-funciona",
     titulo: "Cómo Funciona",
     desc: "Tres pasos: gira, descubre y redime.",
-    icono: (
-      <>
-        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M9.5 9.5a2.5 2.5 0 114 2c-.9.7-1.5 1.2-1.5 2.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 17v.1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      </>
-    ),
+    icono: <HelpCircle size={22} strokeWidth={1.5} />,
   },
   {
     to: "/sedes",
     titulo: "Sedes",
     desc: `${SEDES.length} locales en Arauca para redimir tu bono.`,
-    icono: (
-      <>
-        <path d="M12 2c-3.6 0-6.5 2.9-6.5 6.5 0 4.7 6.5 13 6.5 13s6.5-8.3 6.5-13C18.5 4.9 15.6 2 12 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <circle cx="12" cy="8.5" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-      </>
-    ),
+    icono: <MapPin size={22} strokeWidth={1.5} />,
   },
   {
     to: "/faq",
     titulo: "Preguntas",
     desc: "Resolvemos las dudas más frecuentes.",
-    icono: (
-      <>
-        <path d="M21 12a9 9 0 11-3.2-6.9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M9.5 9.5a2.5 2.5 0 114 2c-.9.7-1.5 1.2-1.5 2.2M12 17v.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      </>
-    ),
+    icono: <HelpCircle size={22} strokeWidth={1.5} />,
   },
 ];
 
@@ -108,7 +88,7 @@ export default function InicioPage() {
             className="mt-4 text-4xl font-black uppercase text-white md:text-6xl"
             style={{ letterSpacing: "-0.01em" }}
           >
-            Centro Club{" "}
+            Club{" "}
             <span
               style={{
                 background: "linear-gradient(90deg, #D4A827 0%, #ECC84C 45%, #00C4D8 100%)",
@@ -184,9 +164,7 @@ export default function InicioPage() {
                   className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl"
                   style={{ background: "rgba(212,168,39,0.1)", color: "#D4A827" }}
                 >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    {a.icono}
-                  </svg>
+                  {a.icono}
                 </span>
                 <span className="min-w-0">
                   <span className="block text-base font-bold text-white">{a.titulo}</span>

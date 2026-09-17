@@ -1,12 +1,20 @@
-import { useState } from "react";
-import { Link } from "react-router";
-import { useAuth } from "@/features/auth/AuthContext";
-import { pickPrize, type Prize } from "../data/prizes";
+import { useEffect, useState } from "react";
+import { ChevronLeft, Info, Calendar } from "lucide-react";
+import { Link, useNavigate } from "react-router";
+import { mapPremioToPrize, type Prize } from "../data/prizes";
 import PrizeRevealModal from "../components/PrizeRevealModal";
 import Roulette3D from "../roulette/components/Roulette3D";
 import { TOTAL_POCKETS } from "../roulette/constants/roulette.constants";
 import type { RouletteSpinCommand } from "../roulette/types/roulette.types";
 import fichardo from "@/imports/fichardo-mirage.png";
+import {
+  ApiError,
+  fetchGirosRestantes,
+  fetchVigenciaPromocion,
+  girarRuleta,
+  setVisitanteToken,
+  type GiroResultado,
+} from "@/shared/api/client";
 
 const MAX_SPINS = 3;
 
@@ -23,48 +31,89 @@ const DURACION_GIRO_MS = 5800;
  *
  *  La ruleta 3D es la misma pieza (geometria, iluminacion, animacion) que ya
  *  se habia construido para Gran Casino Cucuta -- no se reescribio nada de
- *  eso. Lo que cambia aqui es la logica que la conecta: esta app no tiene
- *  backend, asi que el premio se decide localmente con pickPrize() en vez de
- *  una llamada a un servidor.
+ *  eso. La logica que la conecta si es propia: el premio lo decide el
+ *  SERVIDOR (POST /api/ruleta/girar-anonimo, con un sorteo ponderado real y
+ *  limite de giros llevado en base de datos), nunca el navegador.
  *
  *  El casillero (targetPocket) en el que se detiene la ruleta es puramente
  *  visual: la ruleta tiene 37 casilleros (0-36, disposicion europea real) y
  *  la promocion solo reparte 3 bonos, asi que no hay una correspondencia 1:1.
- *  Se elige un casillero al azar para el espectaculo, y el premio real ya se
- *  decidio aparte con pickPrize() -- mismo criterio que ya traia el motor
- *  original (ver el comentario de RoulettePage.tsx de donde salio esto). */
+ *  Se elige un casillero al azar para el espectaculo. El premio real lo
+ *  decide el SERVIDOR (POST /api/ruleta/girar-anonimo) antes de que la
+ *  ruleta empiece a girar -- si esa llamada falla (por ejemplo, ya se
+ *  agotaron los giros en otra pestana), no se anima nada y se muestra el
+ *  error en su lugar. */
 export default function RuletaPage() {
-  const { openLogin } = useAuth();
+  const navigate = useNavigate();
   const [spinning, setSpinning] = useState(false);
   const [spinsUsed, setSpinsUsed] = useState(0);
   const [wonPrize, setWonPrize] = useState<Prize | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [spinCommand, setSpinCommand] = useState<RouletteSpinCommand | null>(null);
-  const [pendingPrize, setPendingPrize] = useState<Prize | null>(null);
+  const [pendingResultado, setPendingResultado] = useState<GiroResultado | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [cargandoGiro, setCargandoGiro] = useState(false);
+  const [vigenciaHasta, setVigenciaHasta] = useState<Date | null>(null);
 
-  const daysLeft = Math.max(0, Math.ceil((new Date("2026-09-30").getTime() - Date.now()) / 86400000));
-  const spinsLeft = MAX_SPINS - spinsUsed;
+  // Al entrar, se consulta cuantos giros lleva este visitante -- asi el
+  // contador es exacto desde el primer render y no asume que nadie ha
+  // girado, aunque recargue la pagina o vuelva en otra sesion del navegador.
+  useEffect(() => {
+    fetchGirosRestantes()
+      .then((r) => {
+        setSpinsUsed(r.usados);
+        setVisitanteToken(r.visitanteToken);
+      })
+      .catch(() => {
+        // Si falla (API caida), se deja en 0: el primer giro real ya
+        // reportara el error que corresponda.
+      });
+    fetchVigenciaPromocion()
+      .then((r) => setVigenciaHasta(r.vigenciaHasta ? new Date(r.vigenciaHasta) : null))
+      .catch(() => {});
+  }, []);
+
+  const spinsLeft = Math.max(0, MAX_SPINS - spinsUsed);
   const allSpinsUsed = spinsLeft <= 0;
+  const daysLeft = vigenciaHasta ? Math.max(0, Math.ceil((vigenciaHasta.getTime() - Date.now()) / 86400000)) : null;
+  const vigenciaLabel = vigenciaHasta
+    ? vigenciaHasta.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })
+    : null;
 
-  const handleSpin = () => {
-    if (spinning || allSpinsUsed) return;
-    setSpinning(true);
+  const handleSpin = async () => {
+    if (spinning || allSpinsUsed || cargandoGiro) return;
+    setError(null);
+    setCargandoGiro(true);
 
-    const prize = pickPrize();
-    setPendingPrize(prize);
-
-    // Casillero puramente decorativo -- ver nota de arriba.
-    const targetPocket = Math.floor(Math.random() * TOTAL_POCKETS);
-    setSpinCommand({ id: Date.now(), targetPocket, durationMs: DURACION_GIRO_MS });
+    try {
+      const resultado = await girarRuleta();
+      setVisitanteToken(resultado.visitanteToken);
+      setPendingResultado(resultado);
+      setSpinning(true);
+      // Casillero puramente decorativo -- ver nota de arriba.
+      const targetPocket = Math.floor(Math.random() * TOTAL_POCKETS);
+      setSpinCommand({ id: Date.now(), targetPocket, durationMs: DURACION_GIRO_MS });
+    } catch (e) {
+      const mensaje = e instanceof ApiError ? e.message : "No se pudo girar la ruleta. Intenta de nuevo.";
+      setError(mensaje);
+      if (e instanceof ApiError && typeof (e.data as { usados?: number })?.usados === "number") {
+        setSpinsUsed((e.data as { usados: number }).usados);
+      }
+    } finally {
+      setCargandoGiro(false);
+    }
   };
 
   // La ruleta 3D avisa cuando termina de girar y caer; el premio ya estaba
-  // decidido desde el clic, asi que aqui solo se revela.
+  // decidido por el servidor desde el clic, asi que aqui solo se revela.
   const handleSpinComplete = () => {
-    if (!pendingPrize) return;
-    setWonPrize(pendingPrize);
-    setPendingPrize(null);
-    setSpinsUsed((n) => n + 1);
+    if (!pendingResultado) return;
+    setWonPrize(mapPremioToPrize(pendingResultado.premio));
+    setSpinsUsed(pendingResultado.usados);
+    setPendingResultado((prev) => {
+      if (prev) sessionStorage.setItem("ccm_ultimo_ticket", prev.ticket);
+      return null;
+    });
     setSpinning(false);
     setShowResult(true);
   };
@@ -76,7 +125,8 @@ export default function RuletaPage() {
 
   const handleRegister = () => {
     setShowResult(false);
-    openLogin();
+    const ticket = sessionStorage.getItem("ccm_ultimo_ticket");
+    navigate("/registro", { state: { ticket, prize: wonPrize } });
   };
 
   return (
@@ -108,9 +158,7 @@ export default function RuletaPage() {
             onMouseEnter={(e) => { e.currentTarget.style.color = "#EDE8FC"; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(237,232,252,0.5)"; }}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <ChevronLeft size={16} strokeWidth={1.7} />
             Volver a Premios
           </Link>
 
@@ -164,10 +212,7 @@ export default function RuletaPage() {
                 color: "rgba(237,232,252,0.55)",
               }}
             >
-              <svg width="12" height="12" viewBox="0 0 13 13" fill="none" className="flex-shrink-0">
-                <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" strokeWidth="1.1" />
-                <path d="M6.5 3.8V6.5M6.5 9.2v.1" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
-              </svg>
+              <Info size={12} strokeWidth={1.6} className="flex-shrink-0" />
               {allSpinsUsed ? (
                 <span>Usaste tus {MAX_SPINS} intentos</span>
               ) : (
@@ -178,23 +223,22 @@ export default function RuletaPage() {
               )}
             </div>
 
-            <div
-              className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full flex-wrap justify-center"
-              style={{
-                background: "rgba(16,185,129,0.08)",
-                border: "1px solid rgba(16,185,129,0.18)",
-                color: "rgba(52,211,153,0.85)",
-              }}
-            >
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                <rect x="1" y="2.5" width="10" height="8.5" rx="1.5" stroke="currentColor" strokeWidth="1.1" />
-                <path d="M4 2.5V1M8 2.5V1M1 5.5h10" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
-              </svg>
-              <span>Redime hasta el</span>
-              <strong style={{ color: "#34D399" }}>30 sep. 2026</strong>
-              <span style={{ color: "rgba(237,232,252,0.2)" }}>·</span>
-              <span>quedan {daysLeft} días</span>
-            </div>
+            {vigenciaLabel && (
+              <div
+                className="flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full flex-wrap justify-center"
+                style={{
+                  background: "rgba(16,185,129,0.08)",
+                  border: "1px solid rgba(16,185,129,0.18)",
+                  color: "rgba(52,211,153,0.85)",
+                }}
+              >
+                <Calendar size={11} strokeWidth={1.6} />
+                <span>Redime hasta el</span>
+                <strong style={{ color: "#34D399" }}>{vigenciaLabel}</strong>
+                <span style={{ color: "rgba(237,232,252,0.2)" }}>·</span>
+                <span>quedan {daysLeft} días</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -231,21 +275,30 @@ export default function RuletaPage() {
         <div className="relative z-10 -mt-7 text-center md:-mt-10">
           <button
             onClick={handleSpin}
-            disabled={spinning || allSpinsUsed}
+            disabled={spinning || allSpinsUsed || cargandoGiro}
             className="px-10 py-4 rounded-full font-black text-base transition-all duration-200 disabled:cursor-not-allowed"
             style={{
               background:
-                spinning || allSpinsUsed
+                spinning || allSpinsUsed || cargandoGiro
                   ? "rgba(107,50,214,0.35)"
                   : "linear-gradient(135deg, #6B32D6 0%, #1A5ED8 100%)",
               color: "#fff",
-              boxShadow: spinning || allSpinsUsed ? "none" : "0 6px 28px rgba(107,50,214,0.4)",
+              boxShadow: spinning || allSpinsUsed || cargandoGiro ? "none" : "0 6px 28px rgba(107,50,214,0.4)",
               letterSpacing: "0.05em",
               minWidth: 240,
             }}
           >
-            {spinning ? "Girando..." : allSpinsUsed ? "Giros agotados" : "Girar Ruleta"}
+            {spinning ? "Girando..." : cargandoGiro ? "Un momento..." : allSpinsUsed ? "Giros agotados" : "Girar Ruleta"}
           </button>
+
+          {error && (
+            <p
+              className="mt-3 text-xs rounded-full px-4 py-2 inline-block"
+              style={{ background: "rgba(239,68,68,0.08)", color: "#FCA5A5", border: "1px solid rgba(239,68,68,0.18)" }}
+            >
+              {error}
+            </p>
+          )}
 
           <p className="mt-3 text-xs" style={{ color: "rgba(237,232,252,0.35)" }}>
             Un bono por persona ·{" "}

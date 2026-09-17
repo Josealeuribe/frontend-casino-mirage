@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface Slide {
   src: string;
@@ -131,15 +132,7 @@ function Flecha({ lado, onClick }: { lado: "izq" | "der"; onClick: () => void })
       onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(212,168,39,0.25)"; }}
       onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(8,7,24,0.6)"; }}
     >
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path
-          d={izq ? "M10 3L5 8l5 5" : "M6 3l5 5-5 5"}
-          stroke="currentColor"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      {izq ? <ChevronLeft size={16} strokeWidth={1.7} /> : <ChevronRight size={16} strokeWidth={1.7} />}
     </button>
   );
 }
