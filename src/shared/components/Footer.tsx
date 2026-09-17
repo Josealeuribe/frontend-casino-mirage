@@ -1,30 +1,22 @@
+import { Link, NavLink, useLocation } from "react-router";
 import { useAuth } from "@/features/auth/AuthContext";
-import { SEDES, comoLlegarUrl, type Sede } from "@/shared/data/sedes";
-import { scrollToSection } from "@/shared/utils/scroll";
+import { NAV_LINKS, esVistaActiva } from "@/features/landing/navigation";
 import logoMirage from "@/imports/logo-mirage.png";
 import logoSupersalud from "@/imports/logo-vigilado-supersalud.png";
 import logoColjuegos from "@/imports/logo-autoriza-coljuegos.webp";
 import imagenMayores18 from "@/imports/image+18.png";
 import bandaCondiciones from "@/imports/image-condiciones-coljuegos.png";
 
-const NAV_LINKS = [
-  { label: "Inicio", target: "inicio" },
-  { label: "Gira y Gana", target: "gira-y-gana" },
-  { label: "Premios", target: "premios" },
-  { label: "Cómo Funciona", target: "como-funciona" },
-  { label: "Sedes", target: "sedes" },
-  { label: "Preguntas Frecuentes", target: "faq" },
-];
-
 const LEGAL_LINKS = [
-  "Términos y Condiciones",
-  "Política de Privacidad",
-  "Tratamiento de Datos",
-  "Juego Responsable",
-  "Condiciones Promoción",
+  { label: "Términos y Condiciones", to: "/legal/terminos-y-condiciones" },
+  { label: "Política de Privacidad", to: "/legal/politica-de-privacidad" },
+  { label: "Tratamiento de Datos", to: "/legal/tratamiento-de-datos" },
+  { label: "Juego Responsable", to: "/legal/juego-responsable" },
+  { label: "Condiciones Promoción", to: "/legal/condiciones-promocion" },
 ];
 
 const tituloColumna = "text-xs font-bold tracking-[0.2em] uppercase mb-4";
+const enlaceFooter = "mb-2.5 block text-left text-sm transition-colors";
 
 /** Recuadro claro para los sellos de las entidades reguladoras: vienen sobre
  *  fondo blanco y se pierden contra el morado del footer. */
@@ -41,71 +33,46 @@ function SelloRegulador({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-function SedeCard({ sede }: { sede: Sede }) {
-  return (
-    <div
-      className="flex flex-col gap-3 rounded-2xl p-5 transition-all duration-300"
-      style={{ background: "rgba(14,11,40,0.8)", border: "1px solid rgba(255,255,255,0.06)" }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,39,0.3)"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
-    >
-      <div className="flex items-start gap-3">
-        <span
-          className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full"
-          style={{ background: "rgba(212,168,39,0.1)", color: "#D4A827" }}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 1.5c-2.5 0-4.5 2-4.5 4.5 0 3.2 4.5 8.5 4.5 8.5s4.5-5.3 4.5-8.5c0-2.5-2-4.5-4.5-4.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-            <circle cx="8" cy="6" r="1.8" stroke="currentColor" strokeWidth="1.3" />
-          </svg>
-        </span>
-        <div className="min-w-0">
-          <h5 className="text-sm font-bold leading-snug text-white">{sede.nombre}</h5>
-          <p className="mt-1 text-sm" style={{ color: "rgba(237,232,252,0.5)" }}>
-            {sede.direccion}
-          </p>
-          <p className="text-xs" style={{ color: "rgba(237,232,252,0.3)" }}>
-            {sede.ciudad}, Colombia
-          </p>
-        </div>
-      </div>
-
-      <a
-        href={comoLlegarUrl(sede)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold transition-all duration-200"
-        style={{
-          background: "rgba(212,168,39,0.1)",
-          border: "1px solid rgba(212,168,39,0.25)",
-          color: "#D4A827",
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(212,168,39,0.2)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(212,168,39,0.1)"; }}
-      >
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M11.5 1.5L7.5 11.5 6 7 1.5 5.5 11.5 1.5z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-        </svg>
-        Cómo llegar
-      </a>
-    </div>
-  );
-}
-
 export default function Footer() {
   const { openLogin } = useAuth();
+  const { pathname } = useLocation();
 
   return (
+    // Unico bloque de la landing con fondo propio: aqui el recuadro sobre la
+    // imagen si es deseado, marca el cierre de la pagina.
     <footer
-      id="sedes"
       className="w-full px-6 py-14"
-      style={{ background: "#0A0820", borderTop: "1px solid rgba(212,168,39,0.18)" }}
+      style={{ background: "rgba(10,8,32,0.7)", borderTop: "1px solid rgba(212,168,39,0.18)" }}
     >
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 grid gap-10 md:grid-cols-4">
           {/* Marca y sellos */}
           <div className="md:col-span-2">
-            <img src={logoMirage} alt="Centro Club Mirage" className="mb-5 h-16 w-auto object-contain" />
+            <div className="mb-5 flex items-center gap-4">
+              <img src={logoMirage} alt="Centro Club Mirage" className="h-16 w-auto object-contain" />
+
+              <a
+                href="https://www.instagram.com/casinomirage.a/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Síguenos en Instagram"
+                title="Síguenos en Instagram"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-300"
+                style={{
+                  background: "rgba(212,168,39,0.1)",
+                  border: "1px solid rgba(212,168,39,0.25)",
+                  color: "#D4A827",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(212,168,39,0.22)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(212,168,39,0.1)"; }}
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <rect x="2.5" y="2.5" width="15" height="15" rx="4.5" stroke="currentColor" strokeWidth="1.4" />
+                  <circle cx="10" cy="10" r="3.8" stroke="currentColor" strokeWidth="1.4" />
+                  <circle cx="14.6" cy="5.4" r="1" fill="currentColor" />
+                </svg>
+              </a>
+            </div>
 
             <p className="mb-6 max-w-sm text-sm leading-relaxed" style={{ color: "rgba(237,232,252,0.45)" }}>
               Entretenimiento premium y beneficios exclusivos para nuestros socios en Arauca.
@@ -118,26 +85,29 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Navegación */}
+          {/* Navegación -- las mismas vistas del navbar, leidas de la misma
+              lista para que no se desincronicen. */}
           <div>
             <h4 className={tituloColumna} style={{ color: "#D4A827" }}>
               Navegación
             </h4>
-            {NAV_LINKS.map((link) => (
-              <button
-                key={link.label}
-                onClick={() => scrollToSection(link.target)}
-                className="mb-2.5 block text-left text-sm transition-colors"
-                style={{ color: "rgba(237,232,252,0.45)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#D4A827"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(237,232,252,0.45)"; }}
-              >
-                {link.label}
-              </button>
-            ))}
+            {NAV_LINKS.map((link) => {
+              // Misma logica que el Navbar: "Gira y Gana" tambien cuenta como
+              // activo en "/jugar", la vista de la ruleta.
+              const isActive = esVistaActiva(link, pathname);
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={isActive ? `${enlaceFooter} font-bold text-cyan-light` : `${enlaceFooter} text-text/45 hover:text-cyan-light`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <button
               onClick={openLogin}
-              className="mb-2.5 block text-left text-sm transition-colors"
+              className={enlaceFooter}
               style={{ color: "rgba(237,232,252,0.45)" }}
               onMouseEnter={(e) => { e.currentTarget.style.color = "#D4A827"; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(237,232,252,0.45)"; }}
@@ -151,14 +121,16 @@ export default function Footer() {
             <h4 className={tituloColumna} style={{ color: "#D4A827" }}>
               Legal
             </h4>
-            {LEGAL_LINKS.map((label) => (
-              <span
-                key={label}
-                className="mb-2.5 block text-sm"
-                style={{ color: "rgba(237,232,252,0.45)" }}
+            {LEGAL_LINKS.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  isActive ? `${enlaceFooter} font-bold text-cyan-light` : `${enlaceFooter} text-text/45 hover:text-cyan-light`
+                }
               >
-                {label}
-              </span>
+                {link.label}
+              </NavLink>
             ))}
 
             <div
@@ -171,22 +143,6 @@ export default function Footer() {
                 className="max-h-full max-w-full object-contain"
               />
             </div>
-          </div>
-        </div>
-
-        {/* Ubicación */}
-        <div className="mb-12 border-t pt-10" style={{ borderColor: "rgba(212,168,39,0.12)" }}>
-          <h4 className={tituloColumna} style={{ color: "#D4A827" }}>
-            Ubicación
-          </h4>
-          <p className="mb-6 max-w-lg text-sm" style={{ color: "rgba(237,232,252,0.45)" }}>
-            Tu bono se redime presencialmente. Encuéntranos en nuestras dos sedes de Arauca.
-          </p>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {SEDES.map((sede) => (
-              <SedeCard key={sede.clave} sede={sede} />
-            ))}
           </div>
         </div>
 

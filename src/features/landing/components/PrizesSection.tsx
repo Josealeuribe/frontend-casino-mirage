@@ -12,7 +12,7 @@ function PrizeIcon({ type, size = 28 }: { type: string; size?: number }) {
 
 export default function PrizesSection() {
   return (
-    <section id="premios" className="py-28 px-4" style={{ background: "#080718" }}>
+    <section id="premios" className="py-28 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-14">
           <span

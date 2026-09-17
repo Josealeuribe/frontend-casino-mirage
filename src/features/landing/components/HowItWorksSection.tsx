@@ -22,23 +22,11 @@ export default function HowItWorksSection() {
       id="como-funciona"
       className="relative py-28 px-4 overflow-hidden"
     >
-      {/* Casino background */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src="https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=1600&h=700&fit=crop&auto=format"
-          alt=""
-          className="w-full h-full object-cover"
-          style={{ filter: "blur(3px) brightness(0.25) saturate(0.6)" }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, #080718 0%, rgba(8,7,24,0.55) 30%, rgba(8,7,24,0.55) 70%, #080718 100%)",
-          }}
-        />
-      </div>
-
+      {/* Sin fondo propio a proposito. Esta seccion tenia una foto de casino
+          (un remoto de Unsplash) y luego un tinte translucido; ambos dibujaban
+          un recuadro con borde visible sobre la imagen global. El fondo lo
+          pone solo LandingLayout, para que se lea plano y continuo de arriba
+          abajo. El unico que conserva recuadro es el footer. */}
       <div className="relative z-10 max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-20">
@@ -63,82 +51,72 @@ export default function HowItWorksSection() {
           </div>
         </div>
 
-        {/* Steps */}
-        <div className="relative flex flex-col md:flex-row items-start justify-center gap-0">
+        {/* Steps.
+            Antes esto era un flex-row donde cada columna metia [bloque][linea
+            conectora] pegados a la izquierda sin justify-content -- sin nada
+            que los centrara dentro de su propia columna. Como la ultima
+            columna no lleva conector, su contenido pesaba menos que las otras
+            dos, y el conjunto quedaba desigualmente espaciado (los circulos
+            01/02/03 no caian a distancias iguales).
+
+            Con un grid de 3 columnas iguales, cada bloque queda centrado en
+            su propia columna sin ayuda extra. El conector es una linea
+            absoluta que arranca en el centro de una columna y mide exactamente
+            el ancho de una columna, asi que llega justo al centro de la
+            siguiente -- sin depender de anchos fijos en pixeles. */}
+        <div className="grid grid-cols-1 gap-y-14 md:grid-cols-3">
           {STEPS.map((step, i) => (
-            <div key={i} className="flex flex-col md:flex-row items-center flex-1">
-              {/* Step block */}
-              <div className="flex flex-col items-center text-center px-4 md:px-6 w-full max-w-xs mx-auto">
-                {/* Circle */}
+            <div key={i} className="relative flex flex-col items-center px-4 text-center md:px-6">
+              {i < STEPS.length - 1 && (
                 <div
-                  className="relative flex items-center justify-center rounded-full mb-8 flex-shrink-0"
+                  className="pointer-events-none absolute hidden md:block"
                   style={{
-                    width: 100,
-                    height: 100,
-                    background: "radial-gradient(circle, rgba(30,22,80,0.95) 0%, rgba(12,9,36,0.95) 100%)",
-                    border: "2px solid rgba(212,168,39,0.55)",
-                    boxShadow: "0 0 30px rgba(212,168,39,0.1), inset 0 0 24px rgba(212,168,39,0.06)",
+                    // 50px = mitad de los 100px del circulo, para que la linea
+                    // cruce justo por su centro vertical.
+                    top: 50,
+                    left: "50%",
+                    width: "100%",
+                    height: 1,
+                    background: "linear-gradient(90deg, rgba(212,168,39,0.5), rgba(212,168,39,0.15))",
+                  }}
+                />
+              )}
+
+              {/* Circle */}
+              <div
+                className="relative z-10 mb-8 flex flex-shrink-0 items-center justify-center rounded-full"
+                style={{
+                  width: 100,
+                  height: 100,
+                  background: "radial-gradient(circle, rgba(30,22,80,0.95) 0%, rgba(12,9,36,0.95) 100%)",
+                  border: "2px solid rgba(212,168,39,0.55)",
+                  boxShadow: "0 0 30px rgba(212,168,39,0.1), inset 0 0 24px rgba(212,168,39,0.06)",
+                }}
+              >
+                <span
+                  className="select-none text-3xl font-black leading-none"
+                  style={{
+                    color: "#D4A827",
+                    fontVariantNumeric: "tabular-nums",
+                    letterSpacing: "0.02em",
                   }}
                 >
-                  <span
-                    className="font-black text-3xl leading-none select-none"
-                    style={{
-                      color: "#D4A827",
-                      fontVariantNumeric: "tabular-nums",
-                      letterSpacing: "0.02em",
-                    }}
-                  >
-                    {step.num}
-                  </span>
-                  {/* Outer glow ring */}
-                  <div
-                    className="absolute inset-0 rounded-full pointer-events-none"
-                    style={{ boxShadow: "0 0 0 8px rgba(212,168,39,0.04)" }}
-                  />
-                </div>
-
-                <h3
-                  className="text-xl font-bold text-white mb-3"
-                >
-                  {step.title}
-                </h3>
-                <p
-                  className="text-sm leading-relaxed max-w-[220px]"
-                  style={{ color: "rgba(237,232,252,0.5)" }}
-                >
-                  {step.desc}
-                </p>
+                  {step.num}
+                </span>
+                {/* Outer glow ring */}
+                <div
+                  className="pointer-events-none absolute inset-0 rounded-full"
+                  style={{ boxShadow: "0 0 0 8px rgba(212,168,39,0.04)" }}
+                />
               </div>
 
-              {/* Connector line — between steps, hidden after last */}
-              {i < STEPS.length - 1 && (
-                <div className="hidden md:flex items-center justify-center flex-shrink-0" style={{ width: 80, marginTop: "-4.5rem" }}>
-                  <div
-                    className="w-full h-px"
-                    style={{
-                      background: "linear-gradient(90deg, rgba(212,168,39,0.5), rgba(212,168,39,0.2))",
-                    }}
-                  />
-                </div>
-              )}
+              <h3 className="mb-3 text-xl font-bold text-white">{step.title}</h3>
+              <p className="max-w-[220px] text-sm leading-relaxed" style={{ color: "rgba(237,232,252,0.5)" }}>
+                {step.desc}
+              </p>
             </div>
           ))}
         </div>
-
-        {/* Mobile vertical connectors (shown only on small) */}
-        <style>{`
-          @media (max-width: 767px) {
-            .step-block { margin-bottom: 2.5rem; }
-            .step-block:not(:last-child)::after {
-              content: '';
-              display: block;
-              width: 1px;
-              height: 2rem;
-              background: linear-gradient(180deg, rgba(212,168,39,0.5), rgba(212,168,39,0.1));
-              margin: 0 auto;
-            }
-          }
-        `}</style>
       </div>
     </section>
   );

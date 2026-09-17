@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/AuthContext";
+import { useTituloVista } from "@/shared/hooks/useTituloVista";
 import Sidebar, { MODULES } from "./components/Sidebar";
 import VistaGeneral from "./modules/VistaGeneral";
 import Dashboard from "./modules/Dashboard";
@@ -26,6 +27,8 @@ export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeModule, setActiveModule] = useState("vista-general");
+
+  useTituloVista("Panel admin");
 
   if (!user) {
     return (

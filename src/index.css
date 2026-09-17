@@ -39,6 +39,11 @@
   --color-border-cyan:   rgba(0, 196, 216, 0.2);
 }
 
+/* Altura del navbar fijo. La leen el propio navbar y el hueco superior que
+   LandingLayout deja para que las vistas no arranquen debajo de el. */
+:root { --nav-h: 88px; }
+@media (min-width: 768px) { :root { --nav-h: 104px; } }
+
 * { box-sizing: border-box; }
 
 html {
@@ -53,12 +58,73 @@ html {
 ::-webkit-scrollbar-thumb { background: rgba(107,50,214,0.35); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(107,50,214,0.55); }
 
+
+
+/* Prosa de las paginas legales (componente LegalPage). Tailwind no trae
+   estilos por defecto para h2/p/ul sueltos -- son solo utilidades -- asi que
+   sin esto el HTML semantico del contenido legal se ve todo del mismo tamano
+   y pegado. */
+.legal-prosa h2 {
+  color: #D4A827;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+.legal-prosa h2:first-child { margin-top: 0; }
+.legal-prosa p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+.legal-prosa ul {
+  list-style: none;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.legal-prosa li {
+  padding-left: 1.4rem;
+  position: relative;
+  line-height: 1.6;
+}
+.legal-prosa li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #D4A827;
+}
+.legal-prosa strong { color: #EDE8FC; font-weight: 700; }
+.legal-prosa a { color: #00C4D8; text-decoration: underline; text-underline-offset: 2px; }
+
+/* Cinta de mensajes en movimiento (componente Marquee).
+   La pista lleva el mismo grupo de mensajes dos veces, asi que al desplazarse
+   un 50% el fotograma final es identico al inicial y el bucle no da salto. */
+@keyframes marquee-izq { from { transform: translateX(0) }    to { transform: translateX(-50%) } }
+@keyframes marquee-der { from { transform: translateX(-50%) } to { transform: translateX(0) } }
+
+.marquee-pista {
+  animation: marquee-izq var(--marquee-dur, 32s) linear infinite;
+}
+.marquee-pista[data-dir="der"] {
+  animation-name: marquee-der;
+}
+/* El sitio declara que respeta reduced-motion (.figma/make/site.json), y una
+   cinta que no para es justo lo que molesta a quien lo activa. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-pista { animation: none; }
+}
 /* Animations */
 @keyframes spin-slow    { from{transform:rotate(0deg)}   to{transform:rotate(360deg)} }
 @keyframes spin-reverse { from{transform:rotate(0deg)}   to{transform:rotate(-360deg)} }
 @keyframes float        { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 @keyframes glow-purple  { 0%,100%{box-shadow:0 0 24px rgba(107,50,214,.35)} 50%{box-shadow:0 0 48px rgba(107,50,214,.65)} }
 @keyframes fadeInUp     { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes sparkle-pulse { 0%,100%{opacity:.4; transform:scale(0.92)} 50%{opacity:1; transform:scale(1.08)} }
 @keyframes shimmer      { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
 
 .animate-spin-slow    { animation: spin-slow 22s linear infinite; }
@@ -66,3 +132,10 @@ html {
 .animate-float        { animation: float 3.5s ease-in-out infinite; }
 .animate-glow-purple  { animation: glow-purple 2.5s ease-in-out infinite; }
 .animate-fade-in-up   { animation: fadeInUp 0.55s ease-out forwards; }
+.animate-sparkle        { animation: sparkle-pulse 3.2s ease-in-out infinite; }
+/* Una sola declaracion `animation` con ambas animaciones separadas por
+   coma -- .animate-sparkle y .animate-float por separado no se combinan,
+   se pisan: cada clase fija la propiedad `animation` completa, y solo la
+   que aparece despues en la hoja de estilos sobrevive. */
+.animate-sparkle-float  { animation: sparkle-pulse 3.2s ease-in-out infinite, float 3.5s ease-in-out infinite; }
+

@@ -34,7 +34,7 @@ export default function FAQSection() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="py-28 px-4" style={{ background: "#0E0B28" }}>
+    <section id="faq" className="py-28 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-14">
           <span

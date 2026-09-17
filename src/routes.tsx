@@ -1,14 +1,56 @@
 import { createBrowserRouter } from "react-router";
-import LandingPage from "@/features/landing/LandingPage";
+import LandingLayout from "@/features/landing/LandingLayout";
+import GiraYGanaPage from "@/features/landing/pages/GiraYGanaPage";
+import RuletaPage from "@/features/landing/pages/RuletaPage";
+import InicioPage from "@/features/landing/pages/InicioPage";
+import SedesPage from "@/features/landing/pages/SedesPage";
+import PremiosPage from "@/features/landing/pages/PremiosPage";
+import ComoFuncionaPage from "@/features/landing/pages/ComoFuncionaPage";
+import FaqPage from "@/features/landing/pages/FaqPage";
+import TerminosCondiciones from "@/features/legal/pages/TerminosCondiciones";
+import PoliticaPrivacidad from "@/features/legal/pages/PoliticaPrivacidad";
+import TratamientoDatos from "@/features/legal/pages/TratamientoDatos";
+import JuegoResponsable from "@/features/legal/pages/JuegoResponsable";
+import CondicionesPromocion from "@/features/legal/pages/CondicionesPromocion";
 import AdminLayout from "@/features/admin/AdminLayout";
 
 export const router = createBrowserRouter(
   [
     {
+      // Todas las vistas publicas cuelgan del mismo marco (fondo, navbar y
+      // footer); lo unico que cambia entre opciones del navbar es el hijo.
       path: "/",
-      Component: LandingPage,
+      Component: LandingLayout,
+      children: [
+        // Punto de entrada: quien abre el sitio ve "Gira y Gana", que ahora
+        // solo informa (premios + como funciona + un boton). La ruleta que
+        // realmente gira vive en "/jugar", aparte y sin distracciones.
+        { index: true, Component: GiraYGanaPage },
+        { path: "jugar", Component: RuletaPage },
+        { path: "inicio", Component: InicioPage },
+        // Estas tres cuelgan de envoltorios delgados (PremiosPage,
+        // ComoFuncionaPage, FaqPage) que solo agregan el enlace "Volver al
+        // inicio" alrededor del componente compartido -- ese enlace no puede
+        // vivir dentro de PrizesSection/HowItWorksSection/FAQSection porque
+        // esos mismos componentes tambien se embeben en GiraYGanaPage, donde
+        // el enlace no pintaria nada a mitad de pagina.
+        { path: "premios", Component: PremiosPage },
+        { path: "como-funciona", Component: ComoFuncionaPage },
+        { path: "sedes", Component: SedesPage },
+        { path: "faq", Component: FaqPage },
+        // Las 5 opciones de la columna "Legal" del footer. No cuelgan del
+        // navbar -- solo el footer enlaza aqui -- pero comparten el mismo
+        // layout publico (fondo, navbar, footer) para no romper la navegacion.
+        { path: "legal/terminos-y-condiciones", Component: TerminosCondiciones },
+        { path: "legal/politica-de-privacidad", Component: PoliticaPrivacidad },
+        { path: "legal/tratamiento-de-datos", Component: TratamientoDatos },
+        { path: "legal/juego-responsable", Component: JuegoResponsable },
+        { path: "legal/condiciones-promocion", Component: CondicionesPromocion },
+      ],
     },
     {
+      // Fuera del layout publico: el panel tiene su propio marco y su fondo
+      // plano, sin la imagen del casino.
       path: "/admin",
       Component: AdminLayout,
     },
