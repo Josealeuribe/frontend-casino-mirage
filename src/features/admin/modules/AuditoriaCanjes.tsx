@@ -4,6 +4,7 @@ import { adminFetchCanjes, type AdminCanje } from "@/shared/api/client";
 import { useAdminFetch } from "../useAdminFetch";
 import { AdminCargando, AdminError } from "../AdminStates";
 import { descargarExcel, type ColumnaExcel } from "../excelExport";
+import Paginador, { REGISTROS_POR_PAGINA } from "../Paginador";
 
 const card: React.CSSProperties = {
   background: "#0E0B28",
@@ -18,7 +19,8 @@ const COLUMNAS_CANJES: ColumnaExcel[] = [
   { header: "Premio", key: "premio", width: 16 },
   { header: "Valor", key: "valor", width: 14, currency: true },
   { header: "Cajero", key: "cajero", width: 18 },
-  { header: "Sede", key: "sede", width: 22 },
+  { header: "Sede asignada", key: "sedeAsignada", width: 22 },
+  { header: "Sede de canje", key: "sede", width: 22 },
   { header: "Fecha", key: "fecha", width: 14 },
   { header: "Hora", key: "hora", width: 12 },
 ];
@@ -33,9 +35,10 @@ async function exportarExcel(canjes: AdminCanje[]) {
       premio: c.premio.nombre,
       valor: c.premio.monto,
       cajero: c.canjeadoPor ?? "",
+      sedeAsignada: c.sedeAsignada,
       sede: c.sede ?? "",
-      fecha: fecha ? fecha.toLocaleDateString("es-CO") : "",
-      hora: fecha ? fecha.toLocaleTimeString("es-CO") : "",
+      fecha: fecha ? fecha.toLocaleDateString("es-CO", { timeZone: "America/Bogota" }) : "",
+      hora: fecha ? fecha.toLocaleTimeString("es-CO", { timeZone: "America/Bogota" }) : "",
     };
   });
   await descargarExcel(`auditoria-canjes-${new Date().toISOString().slice(0, 10)}.xlsx`, "Auditoría de Canjes", COLUMNAS_CANJES, filas);
@@ -44,12 +47,16 @@ async function exportarExcel(canjes: AdminCanje[]) {
 export default function AuditoriaCanjes() {
   const { data, loading, error } = useAdminFetch(adminFetchCanjes);
   const [exportando, setExportando] = useState(false);
+  const [pagina, setPagina] = useState(1);
 
   if (loading) return <AdminCargando />;
   if (error) return <AdminError message={error} />;
   if (!data) return null;
 
   const { kpis, canjes } = data;
+  const totalPaginas = Math.max(1, Math.ceil(canjes.length / REGISTROS_POR_PAGINA));
+  const paginaSegura = Math.min(pagina, totalPaginas);
+  const paginados = canjes.slice((paginaSegura - 1) * REGISTROS_POR_PAGINA, paginaSegura * REGISTROS_POR_PAGINA);
 
   return (
     <div className="space-y-5">
@@ -99,7 +106,7 @@ export default function AuditoriaCanjes() {
         <table className="w-full text-sm">
           <thead style={{ background: "#0C0924" }}>
             <tr>
-              {["Código", "Cliente", "Documento", "Bono", "Cajero", "Sede", "Fecha", "Hora"].map((h) => (
+              {["#", "Código", "Cliente", "Documento", "Bono", "Cajero", "Sede asignada", "Sede de canje", "Fecha", "Hora"].map((h) => (
                 <th key={h} className="text-left text-xs font-medium px-4 py-3 uppercase tracking-wider whitespace-nowrap" style={{ color: "rgba(237,232,252,0.3)" }}>
                   {h}
                 </th>
@@ -107,8 +114,12 @@ export default function AuditoriaCanjes() {
             </tr>
           </thead>
           <tbody>
-            {canjes.map((c) => {
+            {paginados.map((c, i) => {
               const fecha = c.canjeadoEn ? new Date(c.canjeadoEn) : null;
+              // Numero de fila propio del aplicativo (consecutivo, sigue
+              // subiendo entre paginas), no el codigo del bono ni un id de
+              // base de datos.
+              const numero = (paginaSegura - 1) * REGISTROS_POR_PAGINA + i + 1;
               return (
                 <tr
                   key={c.codigo}
@@ -117,30 +128,39 @@ export default function AuditoriaCanjes() {
                   onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.04)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                 >
+                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.25)" }}>{numero}</td>
                   <td className="px-4 py-3 font-mono text-xs" style={{ color: "rgba(237,232,252,0.3)" }}>{c.codigo}</td>
                   <td className="px-4 py-3 font-medium" style={{ color: "rgba(237,232,252,0.85)" }}>{c.cliente.nombres} {c.cliente.apellidos}</td>
                   <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.cliente.docNumero}</td>
                   <td className="px-4 py-3 font-semibold" style={{ color: "#D4A827" }}>${c.premio.monto.toLocaleString("es-CO")}</td>
                   <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.5)" }}>{c.canjeadoPor ?? "—"}</td>
+                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.sedeAsignada}</td>
                   <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.sede ?? "—"}</td>
                   <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: "rgba(237,232,252,0.35)" }}>
-                    {fecha ? fecha.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                    {fecha ? fecha.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Bogota" }) : "—"}
                   </td>
                   <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.35)" }}>
-                    {fecha ? fecha.toLocaleTimeString("es-CO") : "—"}
+                    {fecha ? fecha.toLocaleTimeString("es-CO", { timeZone: "America/Bogota" }) : "—"}
                   </td>
                 </tr>
               );
             })}
             {canjes.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-sm" style={{ color: "rgba(237,232,252,0.28)" }}>
+                <td colSpan={10} className="px-4 py-10 text-center text-sm" style={{ color: "rgba(237,232,252,0.28)" }}>
                   Todavía no hay canjes registrados.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        <Paginador
+          pagina={paginaSegura}
+          totalPaginas={totalPaginas}
+          totalItems={canjes.length}
+          porPagina={REGISTROS_POR_PAGINA}
+          onCambiar={setPagina}
+        />
       </div>
     </div>
   );

@@ -45,7 +45,8 @@ export default function MiBono({ bono, onNavigate }: MiBonoProps) {
   const estado = ESTADO_STYLE[bono.estado];
   const vigencia = new Date(bono.vigenciaHasta);
   const daysLeft = Math.max(0, Math.ceil((vigencia.getTime() - Date.now()) / 86400000));
-  const vigenciaLabel = vigencia.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+  // timeZone fija a Colombia -- ver la misma nota en admin/modules/VistaGeneral.tsx.
+  const vigenciaLabel = vigencia.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Bogota" });
 
   return (
     <div className="space-y-6">
@@ -102,7 +103,7 @@ export default function MiBono({ bono, onNavigate }: MiBonoProps) {
           <p className="text-sm font-semibold" style={{ color: "#34D399" }}>Este bono ya fue canjeado</p>
           <p className="text-xs mt-1" style={{ color: "rgba(237,232,252,0.5)" }}>
             {bono.canjeadoEn &&
-              `El ${new Date(bono.canjeadoEn).toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" })}`}
+              `El ${new Date(bono.canjeadoEn).toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric", timeZone: "America/Bogota" })}`}
             {bono.sede && ` en ${bono.sede}`}
             {bono.canjeadoPor && ` · Atendido por ${bono.canjeadoPor}`}.
           </p>
@@ -120,25 +121,33 @@ export default function MiBono({ bono, onNavigate }: MiBonoProps) {
             </button>
           </div>
           <p className="text-xs mb-4" style={{ color: "rgba(237,232,252,0.45)" }}>
-            Presenta este código y tu documento en caja en cualquiera de nuestras 2 sedes en Arauca.
+            Este bono se asignó automáticamente a una sede al ganarlo -- solo puede redimirse
+            ahí, presentando este código y tu documento en caja.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {SEDES.map((sede) => (
-              <div key={sede.clave} className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <p className="text-sm font-semibold text-white">{sede.nombre}</p>
-                <p className="text-xs mt-0.5" style={{ color: "rgba(237,232,252,0.45)" }}>{sede.direccion} · {sede.ciudad}</p>
-                <a
-                  href={comoLlegarUrl(sede)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold underline underline-offset-4 mt-3"
-                  style={{ color: "#D4A827" }}
-                >
-                  Cómo llegar
-                </a>
+          {/* Una sola tarjeta, no un listado de las 2 sedes: la sede
+              asignada es fija, no una entre varias opciones. Se busca en
+              SEDES por nombre para completar direccion/coords porque el
+              backend solo devuelve nombre+direccion en sedeAsignada. */}
+          {(() => {
+            const sede = SEDES.find((s) => s.nombre === bono.sedeAsignada.nombre);
+            return (
+              <div className="rounded-xl p-4 max-w-sm" style={{ background: "rgba(212,168,39,0.06)", border: "1px solid rgba(212,168,39,0.22)" }}>
+                <p className="text-sm font-semibold text-white">{bono.sedeAsignada.nombre}</p>
+                <p className="text-xs mt-0.5" style={{ color: "rgba(237,232,252,0.45)" }}>{bono.sedeAsignada.direccion}</p>
+                {sede && (
+                  <a
+                    href={comoLlegarUrl(sede)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold underline underline-offset-4 mt-3"
+                    style={{ color: "#D4A827" }}
+                  >
+                    Cómo llegar
+                  </a>
+                )}
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </div>
       )}
     </div>

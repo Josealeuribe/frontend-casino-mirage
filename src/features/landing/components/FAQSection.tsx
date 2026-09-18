@@ -1,33 +1,73 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Plus } from "lucide-react";
+import { Link } from "react-router";
 import { SEDES } from "@/shared/data/sedes";
+import { PRIZES } from "../data/prizes";
 
 const NOMBRES_SEDES = SEDES.map((sede) => sede.nombre).join(" o ");
+const MONTOS_ORDENADOS = [...PRIZES].sort((a, b) => a.amount - b.amount).map((p) => p.amount);
+const MONTOS_TEXTO = MONTOS_ORDENADOS.map((m) => `$${m.toLocaleString("es-CO")}`).join(", ");
 
-const FAQS = [
+// Cada respuesta esta anclada a un hecho REAL ya definido en otra parte del
+// sitio (condiciones de la promocion, terminos, juego responsable, el
+// esquema de registro del backend) -- no son placeholders inventados. Si un
+// dato cambia alla (fecha limite, sedes, montos), cambia aqui tambien porque
+// se lee de la misma fuente (PRIZES, SEDES), salvo los que son texto legal
+// fijo y que ya se repiten igual en las paginas legales.
+const FAQS: { q: string; a: ReactNode }[] = [
   {
-    q: "¿Cómo puedo participar en Gira y Gana?",
-    a: "Gira la ruleta aquí mismo, descubre tu bono y completa tu registro para reclamarlo. Tienes 3 intentos.",
+    q: "¿Qué es la promoción \"Gira y Gana\"?",
+    a: "Es la promoción de bienvenida de Centro Club Mirage, casino físico vigilado por Coljuegos con dos sedes en Arauca. Gira la ruleta virtual, descubre el bono que te tocó y resérvalo a tu nombre completando el registro.",
+  },
+  {
+    q: "¿Necesito registrarme para girar la ruleta?",
+    a: "No. Girar es gratis y no pide registro previo. Solo te pedimos tus datos cuando ya ganaste un bono y quieres reservarlo a tu nombre para poder reclamarlo después.",
   },
   {
     q: "¿Cuántos intentos tengo para girar la ruleta?",
-    a: "Cada usuario tiene 3 intentos para girar la ruleta. Una vez usados todos, no podrás girar nuevamente hasta la próxima promoción.",
+    a: "Tres (3) intentos por persona. Una vez los uses, la ruleta no vuelve a girar para esa cuenta hasta una próxima promoción.",
   },
   {
-    q: "¿Qué bonos puedo ganar?",
-    a: "La promoción reparte tres bonos: $10.000, $20.000 y $50.000. Todos son redimibles únicamente en nuestros casinos físicos de Arauca.",
+    q: "¿Qué bonos puedo ganar y cómo se decide cuál me toca?",
+    a: `La promoción reparte tres bonos: ${MONTOS_TEXTO}. El resultado es aleatorio y definitivo al momento de girar; los bonos de menor valor tienen mayor probabilidad de salir que el bono mayor.`,
+  },
+  {
+    q: "¿Qué requisitos debo cumplir para participar?",
+    a: "Ser mayor de 18 años y registrarte con datos veraces usando un documento vigente: Cédula de Ciudadanía, Pasaporte o Tarjeta de Extranjería. Ese mismo documento es el que debes presentar después, en caja, para reclamar el bono.",
+  },
+  {
+    q: "¿Puedo crear más de una cuenta para tener más intentos?",
+    a: "No. El cupo es de tres intentos y un bono por persona; no se permiten cuentas duplicadas y cualquier giro o bono obtenido así puede anularse.",
   },
   {
     q: "¿Hasta cuándo puedo canjear mi bono?",
-    a: "Tienes hasta el 30 de septiembre de 2026 para canjear tu bono. Pasada esa fecha, los bonos no canjeados quedan sin efecto.",
+    a: "Tienes hasta el 30 de septiembre de 2026 para canjear tu bono. Pasada esa fecha, los bonos no reclamados pierden toda validez.",
   },
   {
     q: "¿Dónde puedo reclamar mi bono?",
-    a: `El bono se redime presencialmente en ${NOMBRES_SEDES}, sobre la Cra. 22 en Arauca. Presenta tu documento y tu código de bono en caja.`,
+    a: `El bono se redime presencialmente en ${NOMBRES_SEDES}, sobre la Cra. 22 en Arauca. Presenta tu documento de identidad y tu código de bono en caja.`,
   },
   {
-    q: "¿El bono se puede cambiar por dinero en efectivo?",
-    a: "No. El bono es un beneficio de juego redimible únicamente dentro del casino y no es convertible en efectivo ni transferible a otra persona.",
+    q: "¿El bono se puede cambiar por dinero en efectivo o transferir a otra persona?",
+    a: "No. El bono es personal e intransferible: solo lo reclama el titular de la cuenta, no es convertible en efectivo y no se entrega por transferencia, consignación ni ningún otro medio digital.",
+  },
+  {
+    q: "¿Cómo consulto si ya gané un bono o si ya lo canjeé?",
+    a: "Inicia sesión con el correo o documento y la contraseña que usaste al registrarte. En tu cuenta encuentras el código del bono, su vigencia y si ya fue canjeado.",
+  },
+  {
+    q: "¿Qué hago si el juego deja de ser entretenimiento y se vuelve un problema?",
+    a: (
+      <>
+        Comunícate a la línea nacional gratuita y confidencial <strong>01-8000-111-444</strong>, o
+        pregunta en cualquiera de nuestras sedes por el Registro Único de Autoexclusión de
+        Coljuegos. Más detalle en{" "}
+        <Link to="/legal/juego-responsable" className="underline underline-offset-2" style={{ color: "#8B5CE8" }}>
+          Juego Responsable
+        </Link>
+        .
+      </>
+    ),
   },
 ];
 

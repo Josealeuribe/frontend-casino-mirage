@@ -74,8 +74,14 @@ export default function InicioPage() {
   return (
     <>
       {/* Bienvenida. Va antes del carrusel a propósito: pegado al navbar, el
-          carrusel entraba en la vista sin ninguna presentación. */}
-      <section className="px-6 py-20 text-center md:py-24">
+          carrusel entraba en la vista sin ninguna presentación.
+
+          Poco padding a propósito: con py-20/24 este bloque por si solo ya
+          ocupaba casi toda la altura de pantalla, y el carrusel y las cintas
+          (lo que de verdad vende la vista) quedaban fuera del viewport
+          inicial -- habia que bajar para verlos. Achicando el aire de arriba
+          y de abajo, y los margenes entre lineas, ambos entran de una vez. */}
+      <section className="px-6 pt-8 pb-6 text-center md:pt-12 md:pb-8">
         <div className="mx-auto max-w-2xl">
           <p
             className="text-xs font-semibold uppercase tracking-[0.3em]"
@@ -85,7 +91,7 @@ export default function InicioPage() {
           </p>
 
           <h1
-            className="mt-4 text-4xl font-black uppercase text-white md:text-6xl"
+            className="mt-3 text-3xl font-black uppercase text-white md:text-5xl"
             style={{ letterSpacing: "-0.01em" }}
           >
             Club{" "}
@@ -101,7 +107,7 @@ export default function InicioPage() {
           </h1>
 
           <p
-            className="mx-auto mt-6 max-w-xl text-base leading-relaxed"
+            className="mx-auto mt-4 max-w-xl text-sm leading-relaxed md:text-base"
             style={{ color: "rgba(237,232,252,0.6)" }}
           >
             Vive una experiencia de entretenimiento diferente en nuestras salas de juego en
@@ -110,7 +116,7 @@ export default function InicioPage() {
           </p>
 
           <p
-            className="mx-auto mt-6 max-w-lg text-base font-bold leading-relaxed"
+            className="mx-auto mt-3 max-w-lg text-sm font-bold leading-relaxed md:text-base"
             style={{ color: "#D4A827" }}
           >
             Atrévete a visitarnos y descubre todo lo que tenemos preparado para ti.

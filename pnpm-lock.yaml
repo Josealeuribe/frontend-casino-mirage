@@ -17,6 +17,9 @@ importers:
       exceljs:
         specifier: ^4.4.0
         version: 4.4.0
+      howler:
+        specifier: ^2.2.4
+        version: 2.2.4
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -39,6 +42,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.0.0
         version: 4.2.2(vite@8.0.5(@types/node@22.19.17)(jiti@2.6.1))
+      '@types/howler':
+        specifier: ^2.2.12
+        version: 2.2.13
       '@types/leaflet':
         specifier: ^1.9.12
         version: 1.9.22
@@ -408,6 +414,9 @@ packages:
   '@types/geojson@7946.0.16':
     resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
 
+  '@types/howler@2.2.13':
+    resolution: {integrity: sha512-40+EBjqIHHrC4VShlz/7i0lBUsE3QkgzZinQQji74Hd8sBkJZUBaT7LWFLK6rcabsDOOQpoMbEJvtaFQwxOu/g==}
+
   '@types/leaflet@1.9.22':
     resolution: {integrity: sha512-h3lhECYEKDasG7LFHu+GiHqAvsgLuQvlJvVZzJDGONo3sEL+wUOqSFLnwkZlK0qVxnxbuGFW8iBlJNYs5wgndA==}
 
@@ -643,6 +652,9 @@ packages:
 
   hls.js@1.7.3:
     resolution: {integrity: sha512-MsPlx6yVW4Qv4C7mEVou4/gk/5cN2dVxOTnrNjPSmyH2f0Ln+/UkG10Ax1PE6OvrmTVPKgQYozTtBaPOuCzq7A==}
+
+  howler@2.2.4:
+    resolution: {integrity: sha512-iARIBPgcQrwtEr+tALF+rapJ8qSc+Set2GJQl7xT1MQzWaVkFebdJhR3alVlSiUf5U7nAANKuj3aWpwerocD5w==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -1449,6 +1461,8 @@ snapshots:
 
   '@types/geojson@7946.0.16': {}
 
+  '@types/howler@2.2.13': {}
+
   '@types/leaflet@1.9.22':
     dependencies:
       '@types/geojson': 7946.0.16
@@ -1702,6 +1716,8 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   hls.js@1.7.3: {}
+
+  howler@2.2.4: {}
 
   ieee754@1.2.1: {}
 

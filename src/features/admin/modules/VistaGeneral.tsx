@@ -43,8 +43,12 @@ const card: React.CSSProperties = {
   padding: "1.25rem",
 };
 
+// timeZone fija: sin esto, la fecha se formatea con la zona horaria del
+// navegador de quien mire la pantalla, no la de Colombia -- una vigencia que
+// vence a las 23:59:59 hora Colombia puede leerse como el dia siguiente para
+// alguien en una zona horaria mas adelantada.
 function formatFecha(fecha: string) {
-  return new Date(fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Bogota" });
 }
 
 export default function VistaGeneral() {

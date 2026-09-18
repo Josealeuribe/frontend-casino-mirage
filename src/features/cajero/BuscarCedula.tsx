@@ -48,6 +48,7 @@ export default function BuscarCedula() {
           vencido: encontrado.bono.vencido,
           premio: encontrado.bono.premio,
           cliente: encontrado.cliente,
+          sedeAsignada: encontrado.bono.sedeAsignada,
           sedeCanje: encontrado.bono.sede,
           canjeadoPor: encontrado.bono.canjeadoPor,
         });
@@ -60,6 +61,7 @@ export default function BuscarCedula() {
           vencido: false,
           premio: null,
           cliente: encontrado.cliente,
+          sedeAsignada: null,
           sedeCanje: null,
           canjeadoPor: null,
         });

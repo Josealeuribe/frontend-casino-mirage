@@ -40,6 +40,65 @@ export default function Navbar() {
         backdropFilter: "blur(14px)",
       }}
     >
+      {/* Trazado decorativo de ondas -- azul + destellos morados, en dos
+          franjas finas (arriba y abajo) que NUNCA tocan el centro de la
+          barra, que es donde vive el logo, los enlaces y los botones. Nada
+          de contenido cae en el 12%-88% vertical, asi que las ondas no
+          quedan ni detras ni delante de ninguna opcion de navegacion --estan
+          en una zona que el contenido nunca ocupa, sin depender de z-index.
+          Tampoco cruzan de borde a borde: cada linea nace de un degradado
+          (opacity 0 -> color -> 0) que la desvanece en ambas puntas, como en
+          la referencia.
+          `overflow-hidden` va en ESTE div propio y no en el <nav>: el menu
+          movil cuelga por debajo del alto de la barra y un overflow en el
+          nav se lo cortaria tambien. */}
+      <div className="absolute inset-0 overflow-hidden -z-10" aria-hidden="true">
+        <svg className="h-full w-full" viewBox="0 0 1600 100" preserveAspectRatio="none" fill="none">
+          <defs>
+            {/* gradientUnits por defecto es objectBoundingBox: x1=0/x2=1 recorre
+                el propio largo de cada trazo, asi que cualquier curva que lo
+                use se desvanece en sus dos puntas sin tener que calcular nada
+                a mano por linea. */}
+            <linearGradient id="navOndaAzul" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#00C4D8" stopOpacity="0" />
+              <stop offset="18%" stopColor="#00C4D8" stopOpacity="0.55" />
+              <stop offset="65%" stopColor="#00C4D8" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#00C4D8" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="navOndaMorada" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#8B5CE8" stopOpacity="0" />
+              <stop offset="22%" stopColor="#8B5CE8" stopOpacity="0.5" />
+              <stop offset="70%" stopColor="#8B5CE8" stopOpacity="0.32" />
+              <stop offset="100%" stopColor="#8B5CE8" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          {/* Franja superior: oscilacion RAPIDA y marcada (periodo corto,
+              amplitud grande para el poco alto que hay) -- una curva suave de
+              periodo largo, al aplastarla en una franja tan delgada, se ve
+              casi recta. Con vueltas frecuentes se nota el curveo real aunque
+              la franja sea angosta. Confinada a y aprox -10/26 (del 0-100 del
+              viewBox), muy por encima del centro vertical donde esta el
+              contenido -- nunca toca el logo ni los enlaces. */}
+          <g>
+            <path d="M-100,8 C0,-8 100,26 200,6 C300,-10 400,24 500,4 C600,-10 700,24 800,4 C900,-10 1000,24 1100,4 C1200,-10 1300,24 1400,4 C1480,-6 1520,18 1550,6" stroke="url(#navOndaAzul)" strokeWidth="1.4" />
+            <path d="M-100,14 C20,0 120,30 220,12 C320,-4 420,28 520,10 C620,-4 720,28 820,10 C920,-4 1020,28 1120,10 C1220,-4 1320,28 1420,10 C1490,2 1520,22 1550,12" stroke="url(#navOndaAzul)" strokeWidth="1" />
+            <path d="M-100,2 C-20,-14 80,18 180,-2 C280,-16 380,16 480,-4 C580,-16 680,16 780,-4 C880,-16 980,16 1080,-4 C1180,-16 1280,16 1380,-4 C1460,-12 1500,10 1550,-2" stroke="url(#navOndaMorada)" strokeWidth="1.2" />
+            <path d="M-100,19 C40,6 140,34 240,17 C340,4 440,32 540,15 C640,4 740,32 840,15 C940,4 1040,32 1140,15 C1240,4 1340,32 1440,15 C1500,10 1530,26 1550,17" stroke="url(#navOndaAzul)" strokeWidth="0.8" />
+          </g>
+
+          {/* Franja inferior: mismas curvas, invertidas en vertical
+              (y' = 100-y) para que ondulen hacia abajo en espejo, confinadas
+              a y aprox 74/110 -- tampoco toca el centro. */}
+          <g>
+            <path d="M-100,92 C0,108 100,74 200,94 C300,110 400,76 500,96 C600,110 700,76 800,96 C900,110 1000,76 1100,96 C1200,110 1300,76 1400,96 C1480,106 1520,82 1550,94" stroke="url(#navOndaAzul)" strokeWidth="1.4" />
+            <path d="M-100,86 C20,100 120,70 220,88 C320,104 420,72 520,90 C620,104 720,72 820,90 C920,104 1020,72 1120,90 C1220,104 1320,72 1420,90 C1490,98 1520,78 1550,88" stroke="url(#navOndaAzul)" strokeWidth="1" />
+            <path d="M-100,98 C-20,114 80,82 180,102 C280,116 380,84 480,104 C580,116 680,84 780,104 C880,116 980,84 1080,104 C1180,116 1280,84 1380,104 C1460,112 1500,90 1550,102" stroke="url(#navOndaMorada)" strokeWidth="1.2" />
+            <path d="M-100,81 C40,94 140,66 240,83 C340,96 440,68 540,85 C640,96 740,68 840,85 C940,96 1040,68 1140,85 C1240,96 1340,68 1440,85 C1500,90 1530,74 1550,83" stroke="url(#navOndaAzul)" strokeWidth="0.8" />
+          </g>
+        </svg>
+      </div>
+
       {/* --- Movil verdadero (debajo de sm, ~640px): icono y nombre por
           separado, no como un bloque conjunto --------------------------- */}
 
@@ -154,17 +213,17 @@ export default function Navbar() {
               onClick={openLogin}
               className="px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200"
               style={{
-                border: "1px solid rgba(255,255,255,0.14)",
+                border: "1px solid rgba(212,168,39,0.5)",
                 color: "rgba(237,232,252,0.75)",
                 background: "transparent",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = "#EDE8FC";
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
+                e.currentTarget.style.borderColor = "#D4A827";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = "rgba(237,232,252,0.75)";
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)";
+                e.currentTarget.style.borderColor = "rgba(212,168,39,0.5)";
               }}
             >
               Iniciar Sesión
@@ -173,12 +232,18 @@ export default function Navbar() {
               onClick={() => navigate("/registro")}
               className="px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200"
               style={{
-                background: "linear-gradient(135deg, #6B32D6 0%, #1A5ED8 100%)",
-                color: "#fff",
-                boxShadow: "0 4px 20px rgba(107,50,214,0.35)",
+                background: "#00C4D8",
+                color: "#04141A",
+                boxShadow: "0 4px 20px rgba(0,196,216,0.35)",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 6px 28px rgba(107,50,214,0.55)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 4px 20px rgba(107,50,214,0.35)"; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#33D2E3";
+                e.currentTarget.style.boxShadow = "0 6px 28px rgba(0,196,216,0.55)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#00C4D8";
+                e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,196,216,0.35)";
+              }}
             >
               Registrarse
             </button>
@@ -226,7 +291,7 @@ export default function Navbar() {
                 onClick={() => { openLogin(); setMenuOpen(false); }}
                 className="flex-1 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200"
                 style={{
-                  border: "1px solid rgba(255,255,255,0.14)",
+                  border: "1px solid rgba(212,168,39,0.5)",
                   color: "rgba(237,232,252,0.75)",
                   background: "transparent",
                 }}
@@ -237,8 +302,8 @@ export default function Navbar() {
                 onClick={() => { navigate("/registro"); setMenuOpen(false); }}
                 className="flex-1 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-200"
                 style={{
-                  background: "linear-gradient(135deg, #6B32D6 0%, #1A5ED8 100%)",
-                  color: "#fff",
+                  background: "#00C4D8",
+                  color: "#04141A",
                 }}
               >
                 Registrarse

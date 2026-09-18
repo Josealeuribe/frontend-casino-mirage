@@ -3,6 +3,7 @@ import { Bell } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useTituloVista } from "@/shared/hooks/useTituloVista";
+import CambiarPasswordObligatorioModal from "@/shared/components/CambiarPasswordObligatorioModal";
 import Sidebar, { MODULES } from "./components/Sidebar";
 import VistaGeneral from "./modules/VistaGeneral";
 import Dashboard from "./modules/Dashboard";
@@ -54,6 +55,7 @@ export default function AdminLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#080718" }}>
+      {user.debeCambiarPassword && <CambiarPasswordObligatorioModal />}
       <Sidebar active={activeModule} onSelect={setActiveModule} />
 
       <div className="flex-1 flex flex-col overflow-hidden">

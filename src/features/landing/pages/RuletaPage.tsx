@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, Info, Calendar } from "lucide-react";
+import { ChevronLeft, Info, Calendar, Gift } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { mapPremioToPrize, type Prize } from "../data/prizes";
 import PrizeRevealModal from "../components/PrizeRevealModal";
+import BonosVigenciaModal from "../components/BonosVigenciaModal";
 import Roulette3D from "../roulette/components/Roulette3D";
 import { TOTAL_POCKETS } from "../roulette/constants/roulette.constants";
 import type { RouletteSpinCommand } from "../roulette/types/roulette.types";
+import { useRuletaSonido } from "../roulette/hooks/useRuletaSonido";
 import fichardo from "@/imports/fichardo-mirage.png";
 import {
   ApiError,
+  decodeTicketExpiraEnMs,
   fetchGirosRestantes,
   fetchVigenciaPromocion,
   girarRuleta,
@@ -45,15 +48,18 @@ const DURACION_GIRO_MS = 5800;
  *  error en su lugar. */
 export default function RuletaPage() {
   const navigate = useNavigate();
+  const { iniciarGiro, detenerGiro, reproducirPremio } = useRuletaSonido();
   const [spinning, setSpinning] = useState(false);
   const [spinsUsed, setSpinsUsed] = useState(0);
   const [wonPrize, setWonPrize] = useState<Prize | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [spinCommand, setSpinCommand] = useState<RouletteSpinCommand | null>(null);
   const [pendingResultado, setPendingResultado] = useState<GiroResultado | null>(null);
+  const [ticketExpiraEnMs, setTicketExpiraEnMs] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cargandoGiro, setCargandoGiro] = useState(false);
   const [vigenciaHasta, setVigenciaHasta] = useState<Date | null>(null);
+  const [showBonosModal, setShowBonosModal] = useState(false);
 
   // Al entrar, se consulta cuantos giros lleva este visitante -- asi el
   // contador es exacto desde el primer render y no asume que nadie ha
@@ -76,8 +82,10 @@ export default function RuletaPage() {
   const spinsLeft = Math.max(0, MAX_SPINS - spinsUsed);
   const allSpinsUsed = spinsLeft <= 0;
   const daysLeft = vigenciaHasta ? Math.max(0, Math.ceil((vigenciaHasta.getTime() - Date.now()) / 86400000)) : null;
+  // timeZone fija a Colombia: sin esto, alguien viendo el sitio desde otra
+  // zona horaria podria leer un dia distinto para la misma fecha limite.
   const vigenciaLabel = vigenciaHasta
-    ? vigenciaHasta.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })
+    ? vigenciaHasta.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Bogota" })
     : null;
 
   const handleSpin = async () => {
@@ -93,6 +101,7 @@ export default function RuletaPage() {
       // Casillero puramente decorativo -- ver nota de arriba.
       const targetPocket = Math.floor(Math.random() * TOTAL_POCKETS);
       setSpinCommand({ id: Date.now(), targetPocket, durationMs: DURACION_GIRO_MS });
+      iniciarGiro(DURACION_GIRO_MS);
     } catch (e) {
       const mensaje = e instanceof ApiError ? e.message : "No se pudo girar la ruleta. Intenta de nuevo.";
       setError(mensaje);
@@ -106,12 +115,19 @@ export default function RuletaPage() {
 
   // La ruleta 3D avisa cuando termina de girar y caer; el premio ya estaba
   // decidido por el servidor desde el clic, asi que aqui solo se revela.
+  // El sonido de giro termina EXACTAMENTE aqui -- el mismo instante en que
+  // se entrega el bono -- y el de premio suena una sola vez, justo despues.
   const handleSpinComplete = () => {
     if (!pendingResultado) return;
+    detenerGiro();
+    reproducirPremio();
     setWonPrize(mapPremioToPrize(pendingResultado.premio));
     setSpinsUsed(pendingResultado.usados);
     setPendingResultado((prev) => {
-      if (prev) sessionStorage.setItem("ccm_ultimo_ticket", prev.ticket);
+      if (prev) {
+        sessionStorage.setItem("ccm_ultimo_ticket", prev.ticket);
+        setTicketExpiraEnMs(decodeTicketExpiraEnMs(prev.ticket));
+      }
       return null;
     });
     setSpinning(false);
@@ -303,7 +319,7 @@ export default function RuletaPage() {
           <p className="mt-3 text-xs" style={{ color: "rgba(237,232,252,0.35)" }}>
             Un bono por persona ·{" "}
             <Link
-              to="/legal/condiciones-promocion"
+              to="/legal/condiciones-promocion?from=ruleta"
               className="underline underline-offset-2 transition-colors"
               style={{ color: "rgba(237,232,252,0.5)" }}
               onMouseEnter={(e) => { e.currentTarget.style.color = "#EDE8FC"; }}
@@ -312,14 +328,31 @@ export default function RuletaPage() {
               Ver términos
             </Link>
           </p>
+
+          {/* Justo debajo de la ruleta: abre el modal con los 3 bonos y la
+              vigencia PROPIA de cada uno (no la fecha unica y generica que ya
+              se ve arriba, antes de girar). */}
+          <button
+            onClick={() => setShowBonosModal(true)}
+            className="mt-4 mx-auto flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full transition-colors"
+            style={{ background: "rgba(212,168,39,0.08)", border: "1px solid rgba(212,168,39,0.22)", color: "#D4A827" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(212,168,39,0.14)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(212,168,39,0.08)"; }}
+          >
+            <Gift size={13} strokeWidth={1.7} />
+            Ver todos los bonos y sus vigencias
+          </button>
         </div>
       </section>
+
+      {showBonosModal && <BonosVigenciaModal onClose={() => setShowBonosModal(false)} />}
 
       {/* Prize reveal modal */}
       {showResult && wonPrize && (
         <PrizeRevealModal
           prize={wonPrize}
           spinsLeft={spinsLeft}
+          expiraEnMs={ticketExpiraEnMs}
           onRegister={handleRegister}
           onIgnore={handleIgnore}
         />

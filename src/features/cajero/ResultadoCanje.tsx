@@ -21,6 +21,10 @@ export interface ResultadoVista {
     departamento: string;
     ciudad: string;
   };
+  // Sede a la que este bono quedo asignado desde que se gano (reparto
+  // equitativo) -- es la unica sede donde el cajero puede confirmar el
+  // canje; el backend rechaza el intento si la sede del cajero no coincide.
+  sedeAsignada: { nombre: string; direccion: string } | null;
   sedeCanje: string | null;
   canjeadoPor: string | null;
 }
@@ -33,6 +37,7 @@ export function previewToVista(p: CanjePreview): ResultadoVista {
     vencido: p.vencido,
     premio: p.premio,
     cliente: p.cliente,
+    sedeAsignada: p.sedeAsignada,
     sedeCanje: p.sedeCanje,
     canjeadoPor: p.canjeadoPor,
   };
@@ -60,10 +65,11 @@ export function formatMonto(monto: number) {
   return `$${monto.toLocaleString("es-CO")}`;
 }
 
+// timeZone fija a Colombia -- ver la misma nota en admin/modules/VistaGeneral.tsx.
 export function formatFecha(iso: string | null) {
   if (!iso) return "—";
   try {
-    return new Date(iso).toLocaleString("es-CO");
+    return new Date(iso).toLocaleString("es-CO", { timeZone: "America/Bogota" });
   } catch {
     return iso;
   }
@@ -168,6 +174,16 @@ export function ResultadoCanjeCard({ resultado, sinBono, confirming, onConfirmar
                 </p>
               </div>
             </div>
+
+            {resultado.sedeAsignada && resultado.estado === "pendiente" && (
+              <p
+                className="text-sm rounded-lg px-4 py-3 mb-4"
+                style={{ background: "rgba(107,50,214,0.08)", color: "#C4B5FD", border: "1px solid rgba(107,50,214,0.22)" }}
+              >
+                Asignado a <strong>{resultado.sedeAsignada.nombre}</strong> ({resultado.sedeAsignada.direccion}) --
+                solo se puede confirmar el canje desde esa sede.
+              </p>
+            )}
 
             {resultado.vencido && (
               <p

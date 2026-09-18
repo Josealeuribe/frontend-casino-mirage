@@ -74,8 +74,8 @@ export default function ClienteLayout() {
     inicio: <Inicio cliente={cliente} bono={bono} onNavigate={setActiveModule} />,
     "mi-bono": <MiBono bono={bono} onNavigate={setActiveModule} />,
     premios: <Premios />,
-    sedes: <Sedes />,
-    historial: <Historial />,
+    sedes: <Sedes bono={bono} />,
+    historial: <Historial bono={bono} />,
     "mi-perfil": <MiPerfil cliente={cliente} />,
   };
 

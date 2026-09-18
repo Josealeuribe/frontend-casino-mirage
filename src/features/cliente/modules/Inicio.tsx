@@ -43,8 +43,9 @@ export default function Inicio({ cliente, bono, onNavigate }: InicioProps) {
   }, []);
 
   const daysLeft = vigenciaHasta ? Math.max(0, Math.ceil((vigenciaHasta.getTime() - Date.now()) / 86400000)) : null;
+  // timeZone fija a Colombia -- ver la misma nota en admin/modules/VistaGeneral.tsx.
   const vigenciaLabel = vigenciaHasta
-    ? vigenciaHasta.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })
+    ? vigenciaHasta.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Bogota" })
     : null;
 
   const nombre = cliente?.nombres ?? "";
@@ -98,7 +99,7 @@ export default function Inicio({ cliente, bono, onNavigate }: InicioProps) {
                 Código {bono.codigo} ·{" "}
                 {bono.estado === "reclamado"
                   ? `Ya fue canjeado${bono.sede ? ` en ${bono.sede}` : ""}.`
-                  : "Redímelo en cualquiera de nuestras 2 sedes en Arauca."}
+                  : `Redímelo en ${bono.sedeAsignada.nombre}, la sede que te asignamos.`}
               </p>
             </div>
           </div>
@@ -121,14 +122,14 @@ export default function Inicio({ cliente, bono, onNavigate }: InicioProps) {
         />
         <StatCard
           onClick={() => onNavigate("sedes")}
-          value={SEDES.length}
-          label="Para redimir tu bono"
+          value={bono ? 1 : SEDES.length}
+          label={bono ? `Sede asignada: ${bono.sedeAsignada.nombre}` : "Sedes en Arauca"}
           icon={<MapPin size={20} strokeWidth={1.5} />}
         />
         <StatCard
           onClick={() => onNavigate("historial")}
-          value="—"
-          label="Próximamente"
+          value={bono ? (bono.estado === "reclamado" ? 2 : 1) : 0}
+          label={bono ? (bono.estado === "reclamado" ? "Bono ganado y canjeado" : "Bono ganado, por canjear") : "Sin actividad aún"}
           icon={<History size={20} strokeWidth={1.5} />}
         />
       </div>

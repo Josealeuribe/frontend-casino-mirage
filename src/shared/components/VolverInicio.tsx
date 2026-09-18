@@ -7,6 +7,11 @@ interface Props {
    *  que ya usa LegalPage en las cinco paginas del footer. */
   variante?: "enlace" | "boton";
   className?: string;
+  /** Se dispara ademas de navegar -- lo usa LoginModal para cerrarse a si
+   *  mismo: al ser un modal global montado en LandingLayout, navegar solo
+   *  con el Link no lo desmonta (LandingLayout persiste entre rutas), asi
+   *  que sin esto quedaria abierto encima de la pagina de destino. */
+  onNavigate?: () => void;
 }
 
 const flecha = <ChevronLeft size={16} strokeWidth={1.7} />;
@@ -17,24 +22,35 @@ const flecha = <ChevronLeft size={16} strokeWidth={1.7} />;
  *  Sedes y FAQ. La vista de Inicio no lo usa: no tiene sentido volver a donde
  *  ya se esta.
  *
- *  Caso especial: los enlaces "ver" de los terminos legales dentro del
- *  formulario de registro abren la pagina legal en una pestaña NUEVA (para
- *  no perder lo que el cliente ya escribio) con `?from=registro` en la URL.
- *  Como es una pestaña nueva (target="_blank"), no hay forma de pasar el
- *  origen por el estado de React Router -- solo sobrevive un query param en
- *  la URL misma. Si esta presente, este boton vuelve al formulario en vez de
- *  al inicio: no tiene sentido mandar a quien esta llenando un registro de
- *  vuelta a la portada. */
-export default function VolverInicio({ variante = "enlace", className = "" }: Props) {
+ *  Casos especiales, via `?from=` en la URL: quien enlaza a una pagina legal
+ *  desde un contexto donde "volver al inicio" no tiene sentido le agrega ese
+ *  parametro para que este boton vuelva a donde de verdad se estaba.
+ *
+ *  - `from=registro`: los enlaces "ver" de los terminos dentro del formulario
+ *    de registro. Toda la navegacion del sitio vuelve dentro de la MISMA
+ *    pestaña (nunca se abren ventanas/pestañas nuevas para moverse dentro
+ *    del propio aplicativo), asi que ir a leer los terminos remonta
+ *    RegistrationPage desde cero -- el query param es lo unico que sobrevive
+ *    a ese remontaje para saber a donde volver (el formulario en si se
+ *    recupera aparte, desde sessionStorage, ver RegistrationPage.tsx).
+ *  - `from=ruleta`: el enlace "Ver terminos" de la vista de la ruleta
+ *    funcional. Ahi "volver al inicio" mandaria a la vista de informacion
+ *    general, perdiendo los giros/animo de quien ya estaba a punto de girar
+ *    -- debe volver a "/jugar", no a "/inicio". */
+const DESTINOS: Record<string, { to: string; texto: string }> = {
+  registro: { to: "/registro", texto: "Volver al formulario" },
+  ruleta: { to: "/jugar", texto: "Volver a la ruleta" },
+};
+
+export default function VolverInicio({ variante = "enlace", className = "", onNavigate }: Props) {
   const [params] = useSearchParams();
-  const vieneDelRegistro = params.get("from") === "registro";
-  const to = vieneDelRegistro ? "/registro" : "/inicio";
-  const texto = vieneDelRegistro ? "Volver al formulario" : "Volver al inicio";
+  const { to, texto } = DESTINOS[params.get("from") ?? ""] ?? { to: "/inicio", texto: "Volver al inicio" };
 
   if (variante === "boton") {
     return (
       <Link
         to={to}
+        onClick={onNavigate}
         className={`inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-bold text-white transition-all duration-200 ${className}`}
         style={{
           background: "linear-gradient(135deg, #6B32D6 0%, #1A5ED8 100%)",
@@ -50,6 +66,7 @@ export default function VolverInicio({ variante = "enlace", className = "" }: Pr
   return (
     <Link
       to={to}
+      onClick={onNavigate}
       className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors ${className}`}
       style={{ color: "#D4A827" }}
     >

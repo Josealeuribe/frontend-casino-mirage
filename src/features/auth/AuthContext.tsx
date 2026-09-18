@@ -51,7 +51,7 @@ function toSessionUser(result: MeResult): SessionUser {
 interface AuthContextType {
   user: SessionUser | null;
   loading: boolean;
-  login: (identifier: string, password: string) => Promise<{ ok: boolean; error?: string; role?: Role }>;
+  login: (identifier: string, password: string, remember?: boolean) => Promise<{ ok: boolean; error?: string; role?: Role }>;
   logout: () => void;
   isLoginOpen: boolean;
   openLogin: () => void;
@@ -60,6 +60,11 @@ interface AuthContextType {
    *  que el login -- esto evita pedirle la contraseña otra vez justo después
    *  de que la escribió en el formulario. */
   setSessionFromRegistro: (result: RegistroResult) => void;
+  /** Se llama justo despues de que POST /auth/cambiar-password responde ok
+   *  -- así el modal obligatorio de cambio de clave (ver
+   *  CambiarPasswordObligatorioModal.tsx) desaparece sin tener que volver a
+   *  pedir /auth/me. */
+  marcarPasswordCambiada: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -84,10 +89,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (identifier: string, password: string) => {
+  const login = async (identifier: string, password: string, remember = true) => {
     try {
       const result = await loginUsuario(identifier, password);
-      persistToken(result.token);
+      persistToken(result.token, remember);
       const me: MeResult =
         result.tipo === "staff"
           ? { tipo: "staff", staff: result.staff }
@@ -111,6 +116,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const openLogin = () => setIsLoginOpen(true);
   const closeLogin = () => setIsLoginOpen(false);
 
+  const marcarPasswordCambiada = () => {
+    setUser((u) => (u ? { ...u, debeCambiarPassword: false } : u));
+  };
+
   const setSessionFromRegistro = (result: RegistroResult) => {
     persistToken(result.token);
     setUser(
@@ -126,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, logout, isLoginOpen, openLogin, closeLogin, setSessionFromRegistro }}
+      value={{ user, loading, login, logout, isLoginOpen, openLogin, closeLogin, setSessionFromRegistro, marcarPasswordCambiada }}
     >
       {children}
     </AuthContext.Provider>

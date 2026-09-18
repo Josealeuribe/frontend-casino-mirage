@@ -11,10 +11,11 @@ function formatMonto(monto: number) {
   return `$${monto.toLocaleString("es-CO")}`;
 }
 
+// timeZone fija a Colombia -- ver la misma nota en admin/modules/VistaGeneral.tsx.
 function formatFecha(iso: string | null) {
   if (!iso) return "—";
   try {
-    return new Date(iso).toLocaleString("es-CO");
+    return new Date(iso).toLocaleString("es-CO", { timeZone: "America/Bogota" });
   } catch {
     return iso;
   }

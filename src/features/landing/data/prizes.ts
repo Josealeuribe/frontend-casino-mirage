@@ -48,7 +48,7 @@ export const PRIZES: Prize[] = [
   },
 ];
 
-const ICONO_POR_CLAVE: Record<string, string> = {
+export const ICONO_POR_CLAVE: Record<string, string> = {
   "bono-10000": "coin",
   "bono-20000": "gift",
   "bono-50000": "trophy",

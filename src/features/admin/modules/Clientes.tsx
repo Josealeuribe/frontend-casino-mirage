@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Download, Search } from "lucide-react";
 import { adminFetchClientes, type AdminCliente } from "@/shared/api/client";
 import { useAdminFetch } from "../useAdminFetch";
 import { AdminCargando, AdminError } from "../AdminStates";
 import { descargarExcel, type ColumnaExcel } from "../excelExport";
+import Paginador, { REGISTROS_POR_PAGINA } from "../Paginador";
 
 const card: React.CSSProperties = {
   background: "#0E0B28",
@@ -12,13 +13,14 @@ const card: React.CSSProperties = {
   overflow: "hidden",
 };
 
+// timeZone fija a Colombia -- ver la misma nota en admin/modules/VistaGeneral.tsx.
 function formatFecha(fecha: string) {
-  return new Date(fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Bogota" });
 }
 
 function formatFechaHora(fecha: string | null) {
   if (!fecha) return "";
-  return new Date(fecha).toLocaleString("es-CO");
+  return new Date(fecha).toLocaleString("es-CO", { timeZone: "America/Bogota" });
 }
 
 const COLUMNAS_CLIENTES: ColumnaExcel[] = [
@@ -37,6 +39,7 @@ const COLUMNAS_CLIENTES: ColumnaExcel[] = [
   { header: "Premio", key: "premio", width: 16 },
   { header: "Valor del premio", key: "valor", width: 16, currency: true },
   { header: "Estado del bono", key: "estadoBono", width: 16 },
+  { header: "Sede asignada", key: "sedeAsignada", width: 22 },
   { header: "Sede de redención", key: "sede", width: 22 },
   { header: "Fecha de canje", key: "fechaCanje", width: 20 },
 ];
@@ -61,6 +64,7 @@ async function exportarClientes(clientes: AdminCliente[]) {
     premio: c.bono?.premio.nombre ?? "",
     valor: c.bono ? c.bono.premio.monto : "",
     estadoBono: c.bono ? (c.bono.estado === "reclamado" ? "Canjeado" : "Pendiente") : "Sin bono",
+    sedeAsignada: c.bono?.sedeAsignada ?? "",
     sede: c.bono?.sede ?? "",
     fechaCanje: formatFechaHora(c.bono?.canjeadoEn ?? null),
   }));
@@ -71,6 +75,14 @@ export default function Clientes() {
   const { data, loading, error } = useAdminFetch(adminFetchClientes);
   const [search, setSearch] = useState("");
   const [exportando, setExportando] = useState(false);
+  const [pagina, setPagina] = useState(1);
+
+  // Buscar cambia el conjunto filtrado -- si no se vuelve a la pagina 1, una
+  // busqueda hecha desde la pagina 4 podria mostrar "sin resultados" aunque
+  // si los haya, solo que en una pagina que ya no existe para ese filtro.
+  useEffect(() => {
+    setPagina(1);
+  }, [search]);
 
   if (loading) return <AdminCargando />;
   if (error) return <AdminError message={error} />;
@@ -81,6 +93,9 @@ export default function Clientes() {
     const nombreCompleto = `${c.nombres} ${c.apellidos}`.toLowerCase();
     return nombreCompleto.includes(search.toLowerCase()) || c.docNumero.includes(search);
   });
+  const totalPaginas = Math.max(1, Math.ceil(filtered.length / REGISTROS_POR_PAGINA));
+  const paginaSegura = Math.min(pagina, totalPaginas);
+  const paginados = filtered.slice((paginaSegura - 1) * REGISTROS_POR_PAGINA, paginaSegura * REGISTROS_POR_PAGINA);
 
   const handleExportar = async () => {
     setExportando(true);
@@ -137,7 +152,7 @@ export default function Clientes() {
         <table className="w-full text-sm">
           <thead style={{ background: "#0C0924" }}>
             <tr>
-              {["#", "Nombre", "Documento", "Sede", "Bono", "Estado", "Fecha"].map((h) => (
+              {["#", "Nombre", "Documento", "Sede asignada", "Bono", "Estado", "Fecha"].map((h) => (
                 <th key={h} className="text-left text-xs font-medium px-4 py-3 uppercase tracking-wider" style={{ color: "rgba(237,232,252,0.3)" }}>
                   {h}
                 </th>
@@ -145,7 +160,7 @@ export default function Clientes() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c) => {
+            {paginados.map((c, i) => {
               const estado = c.bono?.estado === "reclamado" ? "Canjeado" : c.bono ? "Pendiente" : "Sin bono";
               const estadoStyle =
                 estado === "Canjeado"
@@ -153,6 +168,10 @@ export default function Clientes() {
                   : estado === "Pendiente"
                   ? { background: "rgba(212,168,39,0.1)", color: "#D4A827", border: "1px solid rgba(212,168,39,0.18)" }
                   : { background: "rgba(100,116,139,0.1)", color: "#94A3B8", border: "1px solid rgba(100,116,139,0.15)" };
+              // Numero de fila propio del aplicativo, no el id de la base de
+              // datos -- consecutivo dentro del listado ya filtrado, y sigue
+              // subiendo entre paginas (pagina 2 empieza en 21, no en 1 otra vez).
+              const numero = (paginaSegura - 1) * REGISTROS_POR_PAGINA + i + 1;
               return (
                 <tr
                   key={c.id}
@@ -161,10 +180,10 @@ export default function Clientes() {
                   onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(107,50,214,0.04)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                 >
-                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.25)" }}>{c.id}</td>
+                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.25)" }}>{numero}</td>
                   <td className="px-4 py-3 font-medium" style={{ color: "rgba(237,232,252,0.85)" }}>{c.nombres} {c.apellidos}</td>
                   <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.docNumero}</td>
-                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.bono?.sede ?? "—"}</td>
+                  <td className="px-4 py-3 text-xs" style={{ color: "rgba(237,232,252,0.4)" }}>{c.bono?.sedeAsignada ?? "—"}</td>
                   <td className="px-4 py-3 font-semibold text-sm" style={{ color: "#D4A827" }}>
                     {c.bono ? `$${c.bono.premio.monto.toLocaleString("es-CO")}` : "—"}
                   </td>
@@ -186,6 +205,13 @@ export default function Clientes() {
             )}
           </tbody>
         </table>
+        <Paginador
+          pagina={paginaSegura}
+          totalPaginas={totalPaginas}
+          totalItems={filtered.length}
+          porPagina={REGISTROS_POR_PAGINA}
+          onCambiar={setPagina}
+        />
       </div>
     </div>
   );

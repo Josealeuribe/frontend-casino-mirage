@@ -32,18 +32,27 @@ export default function TerminosCondiciones() {
         de cada giro es definitivo y no admite repetición.
       </p>
 
-      <h2>3. Condiciones de redención</h2>
+      <h2>3. Condiciones de redención — sede asignada automáticamente</h2>
       <p>
         <strong>
           Los bonos obtenidos en la promoción son redimibles única y exclusivamente de forma
-          presencial en nuestras sedes físicas
+          presencial
         </strong>
         , previa presentación del documento de identidad del titular. Bajo ninguna circunstancia
         se realizan pagos en efectivo, consignaciones, transferencias bancarias, giros ni ningún
         otro medio de entrega a distancia. El bono no tiene equivalente en dinero y no puede
         cambiarse por su valor en efectivo.
       </p>
-      <p>Sedes habilitadas para la redención:</p>
+      <p>
+        <strong>
+          Cada bono queda asignado, de forma automática y desde el momento en que se gana, a
+          una única sede física
+        </strong>{" "}
+        entre las dos indicadas abajo — el sistema reparte los bonos de manera equitativa entre
+        ambas sedes, y el usuario no elige ni puede cambiar cuál le corresponde. Esa sede queda
+        registrada en la cuenta del usuario junto con el código del bono, y es la única en la que
+        ese bono puede reclamarse; presentarse en la otra sede no permite redimirlo.
+      </p>
       <ul>
         {SEDES.map((s) => (
           <li key={s.clave}>

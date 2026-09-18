@@ -49,7 +49,8 @@ export async function descargarExcel(
   // el archivo se explique solo sin depender de quien lo comparta después.
   ws.mergeCells(2, 1, 2, totalCols);
   const subtituloCelda = ws.getCell(2, 1);
-  subtituloCelda.value = `Generado el ${new Date().toLocaleString("es-CO")} · ${filas.length} registro${filas.length === 1 ? "" : "s"}`;
+  // timeZone fija a Colombia -- ver la misma nota en admin/modules/VistaGeneral.tsx.
+  subtituloCelda.value = `Generado el ${new Date().toLocaleString("es-CO", { timeZone: "America/Bogota" })} · ${filas.length} registro${filas.length === 1 ? "" : "s"}`;
   subtituloCelda.font = { italic: true, size: 10, color: { argb: "FF6B7280" } };
   subtituloCelda.alignment = { vertical: "middle", indent: 1 };
   ws.getRow(2).height = 20;

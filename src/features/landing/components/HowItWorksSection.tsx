@@ -12,7 +12,7 @@ const STEPS = [
   {
     num: "03",
     title: "Redímelo en el casino",
-    desc: "Completa tu registro y acércate a cualquiera de nuestras dos sedes en Arauca. Tu bono queda reservado mientras lo reclamas.",
+    desc: "Completa tu registro y te asignamos automáticamente la sede donde debes reclamarlo. Tu bono queda reservado mientras lo haces.",
   },
 ];
 

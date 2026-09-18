@@ -28,7 +28,8 @@ export default function SedesPage() {
             ¿Dónde estamos?
           </h1>
           <p className="mx-auto max-w-md text-base" style={{ color: "rgba(237,232,252,0.5)" }}>
-            Tu bono se redime presencialmente. Encuéntranos en nuestras dos sedes de Arauca.
+            Tu bono se redime presencialmente en la sede que te asignamos automáticamente al
+            ganarlo. Estas son nuestras dos sedes en Arauca.
           </p>
         </div>
 

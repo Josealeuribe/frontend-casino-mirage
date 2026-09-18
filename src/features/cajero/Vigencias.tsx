@@ -8,9 +8,10 @@ const card: React.CSSProperties = {
   borderRadius: "0.875rem",
 };
 
+// timeZone fija a Colombia -- ver la misma nota en admin/modules/VistaGeneral.tsx.
 function formatFechaCorta(iso: string) {
   try {
-    return new Date(iso).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(iso).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Bogota" });
   } catch {
     return iso;
   }

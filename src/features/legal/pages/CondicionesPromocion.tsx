@@ -37,14 +37,21 @@ export default function CondicionesPromocion() {
         forma aleatoria en el momento de jugar y es definitivo.
       </p>
 
-      <h2>3. Redención — solo en sede física</h2>
+      <h2>3. Redención — sede física asignada automáticamente</h2>
       <p>
         <strong>
           Los bonos ganados no son transferibles, no son canjeables por dinero en efectivo y no se
           entregan por ningún medio digital, transferencia bancaria, consignación o giro.
         </strong>{" "}
-        La única forma de reclamar un bono es presentándose personalmente en una de nuestras sedes
-        físicas con el documento de identidad del titular de la cuenta:
+        La única forma de reclamar un bono es presentándose personalmente, con el documento de
+        identidad del titular de la cuenta, en la sede física que le fue asignada.
+      </p>
+      <p>
+        <strong>Asignación automática y equitativa:</strong> en el momento en que se gana el bono,
+        el sistema le asigna de forma automática una de nuestras sedes — repartiendo los bonos por
+        igual entre ambas — y esa es la única sede en la que ese bono puede redimirse. El titular
+        no elige la sede ni puede solicitar cambiarla; puede consultar cuál le corresponde desde su
+        cuenta. Nuestras sedes son:
       </p>
       <ul>
         {SEDES.map((s) => (

@@ -8,12 +8,22 @@ const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) || "/api";
 const TOKEN_KEY = "ccm_token";
 const VISITANTE_KEY = "ccm_visitante_token";
 
+// "Recordarme" decide en cual de los dos vive el token: localStorage
+// sobrevive a cerrar el navegador, sessionStorage se pierde con la pestaña.
+// Se revisan ambos al leer porque no hay forma de saber de antemano en cual
+// quedo guardado -- pero nunca quedan los dos a la vez (setToken limpia el
+// que no le corresponde), asi que no hay ambiguedad real.
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY);
 }
-export function setToken(token: string | null) {
-  if (token) localStorage.setItem(TOKEN_KEY, token);
-  else localStorage.removeItem(TOKEN_KEY);
+export function setToken(token: string | null, remember = true) {
+  if (token) {
+    (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token);
+    (remember ? sessionStorage : localStorage).removeItem(TOKEN_KEY);
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+  }
 }
 
 export function getVisitanteToken(): string | null {
@@ -102,6 +112,11 @@ export interface SafeBono {
   canjeadoEn: string | null;
   vigenciaHasta: string;
   premio: { clave: string; nombre: string; detalle: string; monto: number };
+  // Sede asignada AUTOMATICAMENTE al ganar el bono (reparto equitativo entre
+  // sedes) -- es la unica en la que este bono puede redimirse. Nunca es
+  // null: todo bono tiene una desde que se crea.
+  sedeAsignada: { nombre: string; direccion: string };
+  // Sede donde se redimio DE VERDAD (solo una vez canjeado).
   sede: string | null;
   canjeadoPor: string | null;
 }
@@ -210,6 +225,18 @@ export function fetchVigenciaPromocion() {
   return get<{ vigenciaHasta: string | null }>("/ruleta/vigencia");
 }
 
+export interface PremioVigencia {
+  clave: string;
+  nombre: string;
+  detalle: string;
+  monto: number;
+  vigenciaHasta: string;
+}
+
+export function fetchPremiosVigencia() {
+  return get<{ premios: PremioVigencia[] }>("/ruleta/premios");
+}
+
 export interface GiroResultado {
   premio: { clave: string; nombre: string; detalle: string; monto: number };
   ticket: string;
@@ -221,6 +248,25 @@ export interface GiroResultado {
 
 export function girarRuleta() {
   return post<GiroResultado>("/ruleta/girar-anonimo");
+}
+
+// El ticket de premio es un JWT firmado por el servidor (ver
+// TICKET_TTL_MINUTES en backend/src/utils/jwt.ts, hoy 30 minutos) -- la
+// autoridad real sobre si ya vencio es el propio backend al validarlo en
+// /auth/register. Esto solo LEE su `exp` para mostrar una cuenta regresiva
+// honesta en la interfaz; no verifica la firma porque no hace falta: si el
+// dato mostrado fuera erroneo, el peor caso es una cuenta regresiva
+// desincronizada, nunca un bono que se otorgue de mas.
+export function decodeTicketExpiraEnMs(ticket: string): number | null {
+  try {
+    const [, payloadB64] = ticket.split(".");
+    if (!payloadB64) return null;
+    const normalizado = payloadB64.replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(normalizado)) as { exp?: number };
+    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
 }
 
 // --- Admin -------------------------------------------------------------
@@ -266,6 +312,7 @@ export interface AdminCliente {
     estado: "pendiente" | "reclamado";
     creadoEn: string;
     canjeadoEn: string | null;
+    sedeAsignada: string;
     sede: string | null;
     premio: { nombre: string; monto: number };
   } | null;
@@ -351,6 +398,7 @@ export interface AdminCanje {
   codigo: string;
   creadoEn: string;
   canjeadoEn: string | null;
+  sedeAsignada: string;
   sede: string | null;
   canjeadoPor: string | null;
   canjeadoPorEmail: string | null;
@@ -387,6 +435,7 @@ export interface CanjePreview {
     ciudad: string;
     registradoEn: string;
   };
+  sedeAsignada: { nombre: string; direccion: string };
   sedeCanje: string | null;
   canjeadoPor: string | null;
 }
@@ -415,6 +464,7 @@ export interface ClienteConBono {
     vigenciaHasta: string;
     vencido: boolean;
     canjeadoPor: string | null;
+    sedeAsignada: { nombre: string; direccion: string };
     sede: string | null;
     premio: { nombre: string; detalle: string; monto: number };
   } | null;

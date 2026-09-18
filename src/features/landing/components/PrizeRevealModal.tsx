@@ -1,9 +1,15 @@
-import { Coins, Gift, Trophy, Clock } from "lucide-react";
+import { Coins, Gift, Trophy, Clock, AlertTriangle } from "lucide-react";
 import type { Prize } from "../data/prizes";
+import { useCuentaRegresiva } from "@/shared/hooks/useCuentaRegresiva";
 
 interface Props {
   prize: Prize;
   spinsLeft: number;
+  /** Instante (epoch ms) en que vence el ticket de este premio -- viene del
+   *  `exp` real del JWT que emitio el servidor (30 minutos, ver
+   *  TICKET_TTL_MINUTES en el backend). `null` si por algun motivo no se
+   *  pudo leer: en ese caso no se muestra cuenta regresiva, solo el aviso. */
+  expiraEnMs: number | null;
   onRegister: () => void;
   onIgnore: () => void;
 }
@@ -16,7 +22,9 @@ function PrizeIcon({ type }: { type: string }) {
   return <Trophy {...s} />;
 }
 
-export default function PrizeRevealModal({ prize, spinsLeft, onRegister, onIgnore }: Props) {
+export default function PrizeRevealModal({ prize, spinsLeft, expiraEnMs, onRegister, onIgnore }: Props) {
+  const { etiqueta, expirado } = useCuentaRegresiva(expiraEnMs);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
@@ -76,6 +84,36 @@ export default function PrizeRevealModal({ prize, spinsLeft, onRegister, onIgnor
           <p className="text-sm leading-relaxed" style={{ color: "rgba(237,232,252,0.5)" }}>
             {prize.desc}
           </p>
+
+          {/* Ventana de 30 minutos para registrarse: el ticket firmado que
+              respalda este premio vence a los 30 minutos exactos (lo decide
+              el servidor, no el navegador). Si sale de la app y no vuelve a
+              tiempo, o gira otra vez antes de registrarse, este premio se
+              pierde -- solo el ultimo giro registrado dentro de esos 30
+              minutos cuenta. */}
+          <div
+            className="mt-5 rounded-2xl px-4 py-3 text-left"
+            style={{
+              background: expirado ? "rgba(239,68,68,0.08)" : "rgba(212,168,39,0.08)",
+              border: `1px solid ${expirado ? "rgba(239,68,68,0.25)" : "rgba(212,168,39,0.22)"}`,
+            }}
+          >
+            <div className="flex items-center gap-2">
+              {expirado ? (
+                <AlertTriangle size={14} strokeWidth={1.8} style={{ color: "#FCA5A5", flexShrink: 0 }} />
+              ) : (
+                <Clock size={14} strokeWidth={1.8} style={{ color: "#D4A827", flexShrink: 0 }} />
+              )}
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: expirado ? "#FCA5A5" : "#D4A827" }}>
+                {expirado ? "Tiempo agotado" : `Tienes 30 minutos${etiqueta ? ` · quedan ${etiqueta}` : ""}`}
+              </span>
+            </div>
+            <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "rgba(237,232,252,0.5)" }}>
+              {expirado
+                ? "El tiempo para reclamar este premio ya se venció. Puedes registrarte igual, pero el bono ya no se asignará."
+                : "Regístrate ahora para reservarlo. Si sales de la aplicación o dejas pasar el tiempo, perderás la oportunidad."}
+            </p>
+          </div>
 
           {/* Spins remaining */}
           {spinsLeft > 0 && (

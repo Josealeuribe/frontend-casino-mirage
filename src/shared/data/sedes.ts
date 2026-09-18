@@ -22,7 +22,7 @@ export const SEDES: Sede[] = [
   {
     clave: "mirage-3",
     nombre: "Centro Club Mirage 3",
-    direccion: "Cra. 22 #21-7",
+    direccion: "Cra. 22 #21-07",
     ciudad: "Arauca",
     coords: [7.0851, -70.7588],
   },

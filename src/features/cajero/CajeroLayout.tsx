@@ -4,6 +4,7 @@ import { Home, Store, Calendar } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useTituloVista } from "@/shared/hooks/useTituloVista";
 import { fetchVigenciaPromocion } from "@/shared/api/client";
+import CambiarPasswordObligatorioModal from "@/shared/components/CambiarPasswordObligatorioModal";
 import Sidebar, { MODULES } from "./components/Sidebar";
 import CanjearCodigo from "./CanjearCodigo";
 import BuscarCedula from "./BuscarCedula";
@@ -91,12 +92,14 @@ export default function CajeroLayout() {
   const activeLabel = MODULES.find((m) => m.id === activeModule)?.label ?? "Mostrador";
 
   const daysLeft = vigenciaHasta ? Math.max(0, Math.ceil((vigenciaHasta.getTime() - Date.now()) / 86400000)) : null;
+  // timeZone fija a Colombia -- ver la misma nota en admin/modules/VistaGeneral.tsx.
   const vigenciaLabel = vigenciaHasta
-    ? vigenciaHasta.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })
+    ? vigenciaHasta.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Bogota" })
     : null;
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#080718" }}>
+      {user.debeCambiarPassword && <CambiarPasswordObligatorioModal />}
       <Sidebar active={activeModule} onSelect={setActiveModule} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
