@@ -16,14 +16,20 @@ import RegistrationPage from "@/features/registration/RegistrationPage";
 import AdminLayout from "@/features/admin/AdminLayout";
 import CajeroLayout from "@/features/cajero/CajeroLayout";
 import ClienteLayout from "@/features/cliente/ClienteLayout";
+import RouteErrorBoundary from "@/shared/components/RouteErrorBoundary";
 
 export const router = createBrowserRouter(
   [
     {
       // Todas las vistas publicas cuelgan del mismo marco (fondo, navbar y
       // footer); lo unico que cambia entre opciones del navbar es el hijo.
+      // ErrorBoundary propio: si algo revienta al renderizar CUALQUIER hijo
+      // (p.ej. el choque traductor-vs-React en /jugar), quien visita ve un
+      // aviso en español con boton de recargar, no la pagina generica de
+      // React Router en ingles con el stack trace crudo.
       path: "/",
       Component: LandingLayout,
+      ErrorBoundary: RouteErrorBoundary,
       children: [
         // Punto de entrada: quien abre el sitio ve "Gira y Gana", que ahora
         // solo informa (premios + como funciona + un boton). La ruleta que
@@ -60,12 +66,14 @@ export const router = createBrowserRouter(
       // plano, sin la imagen del casino.
       path: "/admin",
       Component: AdminLayout,
+      ErrorBoundary: RouteErrorBoundary,
     },
     {
       // El panel del cajero -- mostrador de caja, busca y confirma canjes.
       // Mismo criterio que /admin: marco propio, sin el layout publico.
       path: "/cajero",
       Component: CajeroLayout,
+      ErrorBoundary: RouteErrorBoundary,
     },
     {
       // Cuenta del cliente: su bono, el codigo y donde redimirlo. Mismo
@@ -73,6 +81,7 @@ export const router = createBrowserRouter(
       // publico (fondo del casino, navbar de navegacion general).
       path: "/cuenta",
       Component: ClienteLayout,
+      ErrorBoundary: RouteErrorBoundary,
     },
   ],
   {
