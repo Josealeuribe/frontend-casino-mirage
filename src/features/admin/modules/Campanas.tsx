@@ -79,7 +79,7 @@ export default function Campanas() {
               </div>
 
               {isOpen && (
-                <div className="grid grid-cols-3 gap-3 mt-5 pt-5" style={{ borderTop: "1px solid rgba(107,50,214,0.15)" }}>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 pt-5" style={{ borderTop: "1px solid rgba(107,50,214,0.15)" }}>
                   {[
                     { label: "Bonos entregados", value: p.entregados },
                     { label: "Bonos canjeados", value: p.canjeados },

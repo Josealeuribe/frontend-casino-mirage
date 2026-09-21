@@ -197,7 +197,7 @@ export default function Vigencias() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
                 {[
                   { label: "Vigente hasta", value: formatFecha(premio.vigenciaHasta) },
                   { label: "Entregados", value: String(premio.entregados) },

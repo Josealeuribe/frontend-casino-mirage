@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Home, Store, Calendar } from "lucide-react";
+import { Home, Store, Calendar, Menu } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useTituloVista } from "@/shared/hooks/useTituloVista";
 import { fetchVigenciaPromocion } from "@/shared/api/client";
@@ -25,6 +25,7 @@ export default function CajeroLayout() {
   const navigate = useNavigate();
   const [activeModule, setActiveModule] = useState("canjear-codigo");
   const [vigenciaHasta, setVigenciaHasta] = useState<Date | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useTituloVista("Mostrador de canjes");
 
@@ -100,19 +101,34 @@ export default function CajeroLayout() {
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#080718" }}>
       {user.debeCambiarPassword && <CambiarPasswordObligatorioModal />}
-      <Sidebar active={activeModule} onSelect={setActiveModule} />
+      <Sidebar
+        active={activeModule}
+        onSelect={setActiveModule}
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Topbar */}
         <header
-          className="flex items-center justify-between px-6 h-14 flex-shrink-0"
+          className="flex items-center justify-between gap-3 px-4 md:px-6 h-14 flex-shrink-0"
           style={{ background: "#0C0924", borderBottom: "1px solid rgba(107,50,214,0.12)" }}
         >
-          <h2 className="font-semibold text-sm" style={{ color: "rgba(237,232,252,0.85)" }}>
-            {activeLabel}
-          </h2>
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ color: "rgba(237,232,252,0.65)", background: "rgba(107,50,214,0.08)" }}
+              aria-label="Abrir menú"
+            >
+              <Menu size={17} />
+            </button>
+            <h2 className="font-semibold text-sm truncate" style={{ color: "rgba(237,232,252,0.85)" }}>
+              {activeLabel}
+            </h2>
+          </div>
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs"
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs flex-shrink-0"
             style={{ border: "1px solid rgba(107,50,214,0.2)", color: "rgba(237,232,252,0.65)", background: "rgba(107,50,214,0.06)" }}
           >
             <Home size={14} strokeWidth={1.3} />
@@ -124,7 +140,7 @@ export default function CajeroLayout() {
             cajero siempre necesita saber a nombre de qué sede queda el
             canje que está por confirmar. */}
         <div
-          className="flex flex-wrap items-center justify-between gap-2 px-6 py-3 flex-shrink-0"
+          className="flex flex-wrap items-center justify-between gap-2 px-4 md:px-6 py-3 flex-shrink-0"
           style={{ background: "#0C0924", borderBottom: "1px solid rgba(107,50,214,0.1)" }}
         >
           <div className="flex items-center gap-2.5 flex-wrap">
@@ -143,7 +159,7 @@ export default function CajeroLayout() {
             sitio, también persistente en las 5 secciones. */}
         {vigenciaLabel && (
           <div
-            className="flex flex-wrap items-center gap-2 px-6 py-2.5 flex-shrink-0"
+            className="flex flex-wrap items-center gap-2 px-4 md:px-6 py-2.5 flex-shrink-0"
             style={{ background: "rgba(16,185,129,0.06)", borderBottom: "1px solid rgba(16,185,129,0.16)" }}
           >
             <Calendar size={14} strokeWidth={1.1} style={{ color: "#10B981", flexShrink: 0 }} />
@@ -155,7 +171,7 @@ export default function CajeroLayout() {
         )}
 
         {/* Module content */}
-        <main className="flex-1 overflow-y-auto p-6" style={{ background: "#080718" }}>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6" style={{ background: "#080718" }}>
           {MODULE_COMPONENTS[activeModule] ?? <CanjearCodigo />}
         </main>
       </div>

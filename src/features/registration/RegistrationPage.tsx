@@ -388,7 +388,7 @@ export default function RegistrationPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl p-6" style={{ background: "rgba(14,11,40,0.6)", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Campo label="Nombres">
               <input style={inputStyle} required value={form.nombres} onChange={(e) => set("nombres", e.target.value)} />
             </Campo>
@@ -397,7 +397,7 @@ export default function RegistrationPage() {
             </Campo>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Campo label="Tipo de documento">
               <select style={inputStyle} value={form.docType} onChange={(e) => set("docType", e.target.value as DocType)}>
                 {TIPOS_DOCUMENTO.map((t) => (
@@ -412,7 +412,7 @@ export default function RegistrationPage() {
             </Campo>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Campo label="Fecha de nacimiento">
               <input
                 type="date"
@@ -441,7 +441,7 @@ export default function RegistrationPage() {
             </p>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Campo label="Departamento">
               <select
                 style={inputStyle}
@@ -489,7 +489,7 @@ export default function RegistrationPage() {
             <input type="email" style={inputStyle} required value={form.email} onChange={(e) => set("email", e.target.value)} />
           </Campo>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Campo label="Contraseña">
               <input
                 type="password"

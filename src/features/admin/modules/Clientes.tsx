@@ -149,6 +149,7 @@ export default function Clientes() {
 
       {/* Table */}
       <div style={card}>
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead style={{ background: "#0C0924" }}>
             <tr>
@@ -205,6 +206,7 @@ export default function Clientes() {
             )}
           </tbody>
         </table>
+        </div>
         <Paginador
           pagina={paginaSegura}
           totalPaginas={totalPaginas}

@@ -88,7 +88,7 @@ export default function AuditoriaCanjes() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {[
           { label: "Total canjeados", value: String(kpis.totalCanjeados), color: "#10B981" },
           { label: "Valor total", value: `$${kpis.valorTotal.toLocaleString("es-CO")}`, color: "#D4A827" },
@@ -103,6 +103,7 @@ export default function AuditoriaCanjes() {
 
       {/* Table */}
       <div style={{ ...card, overflow: "hidden" }}>
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead style={{ background: "#0C0924" }}>
             <tr>
@@ -154,6 +155,7 @@ export default function AuditoriaCanjes() {
             )}
           </tbody>
         </table>
+        </div>
         <Paginador
           pagina={paginaSegura}
           totalPaginas={totalPaginas}

@@ -89,6 +89,7 @@ export default function Dashboard() {
       {/* Table */}
       <div style={{ ...card, padding: "1.25rem" }}>
         <h3 className="font-bold text-white text-sm mb-4">Rendimiento por sede</h3>
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -116,6 +117,7 @@ export default function Dashboard() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

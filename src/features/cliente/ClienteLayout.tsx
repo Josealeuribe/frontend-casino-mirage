@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Menu } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useTituloVista } from "@/shared/hooks/useTituloVista";
 import { ApiError, fetchMe, type SafeBono, type SafeCliente } from "@/shared/api/client";
@@ -17,6 +17,7 @@ export default function ClienteLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeModule, setActiveModule] = useState("inicio");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Se carga una sola vez aquí y se reparte hacia abajo por props -- así
   // cambiar de pestaña (Inicio -> Mi Bono -> Sedes...) no repite la misma
@@ -87,24 +88,39 @@ export default function ClienteLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#080718" }}>
-      <Sidebar active={activeModule} onSelect={setActiveModule} />
+      <Sidebar
+        active={activeModule}
+        onSelect={setActiveModule}
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Topbar */}
         <header
-          className="flex items-center justify-between px-6 h-14 flex-shrink-0"
+          className="flex items-center justify-between gap-3 px-4 md:px-6 h-14 flex-shrink-0"
           style={{
             background: "#0C0924",
             borderBottom: "1px solid rgba(107,50,214,0.12)",
           }}
         >
-          <h2 className="font-semibold text-sm" style={{ color: "rgba(237,232,252,0.85)" }}>
-            {activeLabel}
-          </h2>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ color: "rgba(237,232,252,0.65)", background: "rgba(107,50,214,0.08)" }}
+              aria-label="Abrir menú"
+            >
+              <Menu size={17} />
+            </button>
+            <h2 className="font-semibold text-sm truncate" style={{ color: "rgba(237,232,252,0.85)" }}>
+              {activeLabel}
+            </h2>
+          </div>
+          <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
               style={{ color: "rgba(237,232,252,0.5)" }}
               onMouseEnter={(e) => { e.currentTarget.style.color = "#EDE8FC"; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(237,232,252,0.5)"; }}
@@ -113,24 +129,24 @@ export default function ClienteLayout() {
               Volver a Inicio
             </Link>
 
-            {/* User pill */}
+            {/* User pill -- el nombre se oculta en pantallas muy chicas. */}
             <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs"
+              className="flex items-center gap-2 pl-1.5 pr-3 sm:pr-3.5 py-1.5 rounded-full text-xs"
               style={{ border: "1px solid rgba(107,50,214,0.2)", color: "rgba(237,232,252,0.65)", background: "rgba(107,50,214,0.06)" }}
             >
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
+                className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
                 style={{ background: "linear-gradient(135deg,#6B32D6,#1A5ED8)", color: "#fff", fontSize: "10px" }}
               >
                 {user.name[0]}
               </div>
-              {user.name}
+              <span className="hidden sm:inline whitespace-nowrap">{user.name}</span>
             </div>
           </div>
         </header>
 
         {/* Module content */}
-        <main className="flex-1 overflow-y-auto p-6" style={{ background: "#080718" }}>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6" style={{ background: "#080718" }}>
           {mostrarEstadoGlobal ? (
             loading ? <ClienteCargando label="Cargando tu cuenta..." /> : <ClienteError message={error ?? "No se pudo cargar tu información."} onRetry={cargar} />
           ) : (

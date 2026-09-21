@@ -227,7 +227,7 @@ export default function Personal() {
       {resetError && <AdminError message={resetError} />}
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {[
           { label: "Total personal", value: usuarios.length },
           { label: "Activos", value: usuarios.filter((p) => p.activo).length },

@@ -78,6 +78,7 @@ export default function Historial() {
         </div>
       ) : (
         <div style={{ ...card, overflow: "hidden" }}>
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead style={{ background: "#0C0924" }}>
               <tr>
@@ -119,6 +120,7 @@ export default function Historial() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>
