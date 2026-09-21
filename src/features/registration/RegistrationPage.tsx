@@ -74,6 +74,105 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+const MESES_NACIMIENTO = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+
+function diasEnMes(mes: number, anio: number): number {
+  return new Date(anio, mes, 0).getDate();
+}
+
+/** Fecha de nacimiento con 3 selects propios (día/mes/año) en vez del
+ *  `<input type="date">` nativo. El nativo delega su UI al calendario que el
+ *  sistema operativo tenga configurado -- en producción un cliente con el
+ *  calendario japonés activado en su iPhone vio el selector completo en era
+ *  Reiwa en vez de años gregorianos, y no supo qué elegir. Con selects
+ *  propios el calendario mostrado es SIEMPRE gregoriano, sin importar la
+ *  configuración regional del dispositivo: son listas de opciones fijas que
+ *  este componente controla por completo, no un widget del sistema. */
+function FechaNacimientoSelect({
+  value,
+  onChange,
+  invalida,
+}: {
+  value: string;
+  onChange: (fechaISO: string) => void;
+  invalida: boolean;
+}) {
+  // Estado propio por cada parte de la fecha -- NO se deriva de `value` en
+  // cada render. Si dependiera del ISO completo, elegir solo el día (sin mes
+  // ni año todavía) nunca produciría un ISO válido, `value` seguiría en "" y
+  // el select del día se vería "sin elegir" de nuevo apenas se re-renderiza.
+  // Con estado propio, cada select conserva lo elegido mientras se completan
+  // los otros dos.
+  const inicial = value ? (value.split("-").map(Number) as [number, number, number]) : ([] as const);
+  const [anio, setAnio] = useState<number | undefined>(inicial[0]);
+  const [mes, setMes] = useState<number | undefined>(inicial[1]);
+  const [dia, setDia] = useState<number | undefined>(inicial[2]);
+
+  const anioActual = new Date().getFullYear();
+  const anios = Array.from({ length: 100 }, (_, i) => anioActual - i);
+  const dias = Array.from({ length: mes && anio ? diasEnMes(mes, anio) : 31 }, (_, i) => i + 1);
+
+  // Solo avisa al formulario padre cuando las 3 partes ya forman una fecha
+  // completa; mientras tanto el padre ve "" (fecha no ingresada todavía),
+  // igual que antes con el input nativo vacío.
+  useEffect(() => {
+    if (!dia || !mes || !anio) {
+      onChange("");
+      return;
+    }
+    // Si el día ya elegido no existe en el mes/año nuevo (ej. 31 de
+    // febrero), se recorta al último día válido en vez de dejar la fecha
+    // en un estado inconsistente.
+    const diaCorregido = Math.min(dia, diasEnMes(mes, anio));
+    if (diaCorregido !== dia) setDia(diaCorregido);
+    onChange(`${anio}-${String(mes).padStart(2, "0")}-${String(diaCorregido).padStart(2, "0")}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dia, mes, anio]);
+
+  const selectStyle: React.CSSProperties = { ...inputStyle, ...(invalida ? { borderColor: "#F87171" } : {}) };
+
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      <select
+        aria-label="Día de nacimiento"
+        style={selectStyle}
+        value={dia ?? ""}
+        onChange={(e) => setDia(Number(e.target.value) || undefined)}
+      >
+        <option value="" style={{ background: "#120E30" }}>Día</option>
+        {dias.map((d) => (
+          <option key={d} value={d} style={{ background: "#120E30" }}>{d}</option>
+        ))}
+      </select>
+      <select
+        aria-label="Mes de nacimiento"
+        style={selectStyle}
+        value={mes ?? ""}
+        onChange={(e) => setMes(Number(e.target.value) || undefined)}
+      >
+        <option value="" style={{ background: "#120E30" }}>Mes</option>
+        {MESES_NACIMIENTO.map((nombre, i) => (
+          <option key={nombre} value={i + 1} style={{ background: "#120E30" }}>{nombre}</option>
+        ))}
+      </select>
+      <select
+        aria-label="Año de nacimiento"
+        style={selectStyle}
+        value={anio ?? ""}
+        onChange={(e) => setAnio(Number(e.target.value) || undefined)}
+      >
+        <option value="" style={{ background: "#120E30" }}>Año</option>
+        {anios.map((a) => (
+          <option key={a} value={a} style={{ background: "#120E30" }}>{a}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 function edadValida(fechaISO: string): boolean {
   if (!fechaISO) return false;
   const nacimiento = new Date(fechaISO);
@@ -414,17 +513,10 @@ export default function RegistrationPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Campo label="Fecha de nacimiento">
-              <input
-                type="date"
-                style={{ ...inputStyle, ...(edadEsInvalida ? { borderColor: "#F87171" } : {}) }}
-                required
-                // El `max` bloquea la mayoria de los selectores de fecha del
-                // navegador, pero no a quien la escribe a mano digito por
-                // digito -- de ahi que la advertencia de abajo se calcule
-                // aparte en JS y no dependa solo de esta restriccion nativa.
-                max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}
+              <FechaNacimientoSelect
                 value={form.birth}
-                onChange={(e) => set("birth", e.target.value)}
+                onChange={(fechaISO) => set("birth", fechaISO)}
+                invalida={edadEsInvalida}
               />
             </Campo>
             <Campo label="Celular">
