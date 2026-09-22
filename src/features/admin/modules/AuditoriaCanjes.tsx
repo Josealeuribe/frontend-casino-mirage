@@ -5,6 +5,7 @@ import { useAdminFetch } from "../useAdminFetch";
 import { AdminCargando, AdminError } from "../AdminStates";
 import { descargarExcel, type ColumnaExcel } from "../excelExport";
 import Paginador, { REGISTROS_POR_PAGINA } from "../Paginador";
+import FilaInfo from "../FilaInfoCard";
 
 const card: React.CSSProperties = {
   background: "#0E0B28",
@@ -101,8 +102,8 @@ export default function AuditoriaCanjes() {
         ))}
       </div>
 
-      {/* Table */}
-      <div style={{ ...card, overflow: "hidden" }}>
+      {/* Tabla -- solo desde md hacia arriba, ver misma nota en Clientes.tsx. */}
+      <div className="hidden md:block" style={{ ...card, overflow: "hidden" }}>
         <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead style={{ background: "#0C0924" }}>
@@ -163,6 +164,44 @@ export default function AuditoriaCanjes() {
           porPagina={REGISTROS_POR_PAGINA}
           onCambiar={setPagina}
         />
+      </div>
+
+      {/* Tarjetas -- solo en celular, ver misma nota en Clientes.tsx. */}
+      <div className="md:hidden space-y-3">
+        {paginados.map((c) => {
+          const fecha = c.canjeadoEn ? new Date(c.canjeadoEn) : null;
+          const fechaHora = fecha
+            ? `${fecha.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Bogota" })} · ${fecha.toLocaleTimeString("es-CO", { timeZone: "America/Bogota" })}`
+            : "—";
+          return (
+            <div key={c.codigo} className="rounded-2xl p-4" style={card}>
+              <h3 className="font-bold text-white text-base">{c.cliente.nombres} {c.cliente.apellidos}</h3>
+              <div>
+                <FilaInfo label="Código" value={c.codigo} />
+                <FilaInfo label="Documento" value={c.cliente.docNumero} />
+                <FilaInfo label="Bono" value={`$${c.premio.monto.toLocaleString("es-CO")}`} sub={c.premio.nombre} valueColor="#D4A827" />
+                <FilaInfo label="Cajero" value={c.canjeadoPor ?? "—"} />
+                <FilaInfo label="Sede asignada" value={c.sedeAsignada} />
+                <FilaInfo label="Sede de canje" value={c.sede ?? "—"} />
+                <FilaInfo label="Fecha" value={fechaHora} />
+              </div>
+            </div>
+          );
+        })}
+        {canjes.length === 0 && (
+          <div className="rounded-2xl p-8 text-center text-sm" style={{ ...card, color: "rgba(237,232,252,0.28)" }}>
+            Todavía no hay canjes registrados.
+          </div>
+        )}
+        <div className="rounded-2xl" style={card}>
+          <Paginador
+            pagina={paginaSegura}
+            totalPaginas={totalPaginas}
+            totalItems={canjes.length}
+            porPagina={REGISTROS_POR_PAGINA}
+            onCambiar={setPagina}
+          />
+        </div>
       </div>
     </div>
   );

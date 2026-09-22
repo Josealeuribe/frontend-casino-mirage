@@ -5,6 +5,7 @@ import { useAdminFetch } from "../useAdminFetch";
 import { AdminCargando, AdminError } from "../AdminStates";
 import { descargarExcel, type ColumnaExcel } from "../excelExport";
 import Paginador, { REGISTROS_POR_PAGINA } from "../Paginador";
+import FilaInfo from "../FilaInfoCard";
 
 const card: React.CSSProperties = {
   background: "#0E0B28",
@@ -21,6 +22,17 @@ function formatFecha(fecha: string) {
 function formatFechaHora(fecha: string | null) {
   if (!fecha) return "";
   return new Date(fecha).toLocaleString("es-CO", { timeZone: "America/Bogota" });
+}
+
+function estadoDeBono(c: AdminCliente) {
+  const estado = c.bono?.estado === "reclamado" ? "Canjeado" : c.bono ? "Pendiente" : "Sin bono";
+  const estadoStyle: React.CSSProperties =
+    estado === "Canjeado"
+      ? { background: "rgba(16,185,129,0.1)", color: "#34D399", border: "1px solid rgba(16,185,129,0.15)" }
+      : estado === "Pendiente"
+      ? { background: "rgba(212,168,39,0.1)", color: "#D4A827", border: "1px solid rgba(212,168,39,0.18)" }
+      : { background: "rgba(100,116,139,0.1)", color: "#94A3B8", border: "1px solid rgba(100,116,139,0.15)" };
+  return { estado, estadoStyle };
 }
 
 const COLUMNAS_CLIENTES: ColumnaExcel[] = [
@@ -147,8 +159,10 @@ export default function Clientes() {
         />
       </div>
 
-      {/* Table */}
-      <div style={card}>
+      {/* Tabla -- solo desde md hacia arriba. En celular una tabla nunca se
+          lee bien aunque tenga scroll horizontal: demasiadas columnas
+          angostas para leer de corrido, ver las tarjetas de abajo. */}
+      <div className="hidden md:block" style={card}>
         <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead style={{ background: "#0C0924" }}>
@@ -162,13 +176,7 @@ export default function Clientes() {
           </thead>
           <tbody>
             {paginados.map((c, i) => {
-              const estado = c.bono?.estado === "reclamado" ? "Canjeado" : c.bono ? "Pendiente" : "Sin bono";
-              const estadoStyle =
-                estado === "Canjeado"
-                  ? { background: "rgba(16,185,129,0.1)", color: "#34D399", border: "1px solid rgba(16,185,129,0.15)" }
-                  : estado === "Pendiente"
-                  ? { background: "rgba(212,168,39,0.1)", color: "#D4A827", border: "1px solid rgba(212,168,39,0.18)" }
-                  : { background: "rgba(100,116,139,0.1)", color: "#94A3B8", border: "1px solid rgba(100,116,139,0.15)" };
+              const { estado, estadoStyle } = estadoDeBono(c);
               // Numero de fila propio del aplicativo, no el id de la base de
               // datos -- consecutivo dentro del listado ya filtrado, y sigue
               // subiendo entre paginas (pagina 2 empieza en 21, no en 1 otra vez).
@@ -214,6 +222,49 @@ export default function Clientes() {
           porPagina={REGISTROS_POR_PAGINA}
           onCambiar={setPagina}
         />
+      </div>
+
+      {/* Tarjetas -- solo en celular (debajo de md). Misma informacion que la
+          tabla, en formato label/valor que se lee de corrido sin scroll
+          horizontal ni columnas apretadas. */}
+      <div className="md:hidden space-y-3">
+        {paginados.map((c) => {
+          const { estado, estadoStyle } = estadoDeBono(c);
+          return (
+            <div key={c.id} className="rounded-2xl p-4" style={card}>
+              <h3 className="font-bold text-white text-base">{c.nombres} {c.apellidos}</h3>
+              <div>
+                <FilaInfo label="Documento" value={c.docTipo} sub={c.docNumero} />
+                <FilaInfo label="Contacto" value={c.email} sub={c.telefono} />
+                <FilaInfo label="Ubicación" value={c.ciudad} sub={c.departamento} />
+                <FilaInfo label="Registro" value={formatFecha(c.createdAt)} />
+                <FilaInfo
+                  label="Bono"
+                  value={c.bono ? c.bono.premio.nombre : "Sin bono"}
+                  sub={c.bono ? `$${c.bono.premio.monto.toLocaleString("es-CO")} · ${c.bono.sedeAsignada}` : undefined}
+                  valueColor={c.bono ? "#D4A827" : undefined}
+                />
+              </div>
+              <div className="flex justify-end mt-1">
+                <span className="px-2.5 py-1 rounded-full text-xs font-medium" style={estadoStyle}>{estado}</span>
+              </div>
+            </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <div className="rounded-2xl p-8 text-center text-sm" style={{ ...card, color: "rgba(237,232,252,0.28)" }}>
+            Sin resultados para "{search}"
+          </div>
+        )}
+        <div className="rounded-2xl" style={card}>
+          <Paginador
+            pagina={paginaSegura}
+            totalPaginas={totalPaginas}
+            totalItems={filtered.length}
+            porPagina={REGISTROS_POR_PAGINA}
+            onCambiar={setPagina}
+          />
+        </div>
       </div>
     </div>
   );
